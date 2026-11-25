@@ -1,4 +1,4 @@
-import { reducedMotion } from "./loop";
+import { onScroll, readScroll, reducedMotion } from "./loop";
 
 const revealSelector = "[data-reveal],[data-line-reveal],[data-wordmark],[data-ornament]";
 
@@ -33,12 +33,11 @@ function reveal(element: HTMLElement) {
 }
 
 export function startReveal(root: ParentNode = document) {
-  const elements = [...root.querySelectorAll<HTMLElement>(revealSelector)].filter(
-    (element) => !element.hasAttribute("data-revealed"),
-  );
   if (reducedMotion()) return () => undefined;
 
+  const tracked = new WeakSet<Element>();
   const waiting = new Set<HTMLElement>();
+  const low = new Set<HTMLElement>();
   let frame = 0;
   const flush = () => {
     frame = 0;
@@ -49,20 +48,91 @@ export function startReveal(root: ParentNode = document) {
     }
     if (waiting.size) frame = requestAnimationFrame(flush);
   };
+  const queue = (element: HTMLElement) => {
+    observer.unobserve(element);
+    edge.unobserve(element);
+    low.delete(element);
+    waiting.add(element);
+    if (!frame) flush();
+  };
   const observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        observer.unobserve(entry.target);
-        waiting.add(entry.target as HTMLElement);
+        if (entry.isIntersecting) queue(entry.target as HTMLElement);
       }
-      if (waiting.size && !frame) flush();
     },
-    { rootMargin: "0px 0px -10% 0px", threshold: 0 },
+    { rootMargin: "100000px 0px -10% 0px", threshold: 0 },
   );
-  for (const element of elements) observer.observe(element);
+  const edge = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      const element = entry.target as HTMLElement;
+      if (entry.isIntersecting) low.add(element);
+      else low.delete(element);
+    }
+  });
+  const track = (elements: HTMLElement[]) => {
+    const fresh = elements.filter(
+      (element) => !tracked.has(element) && !element.hasAttribute("data-revealed"),
+    );
+    const viewport = window.innerHeight;
+    for (const element of fresh) {
+      tracked.add(element);
+      if (element.getBoundingClientRect().top < viewport && hydrated(element)) {
+        element.setAttribute("data-revealed", "");
+        continue;
+      }
+      observer.observe(element);
+      edge.observe(element);
+    }
+  };
+  const mutations = new MutationObserver((records) => {
+    const added: HTMLElement[] = [];
+    for (const record of records) {
+      for (const node of record.addedNodes) {
+        if (!(node instanceof HTMLElement)) continue;
+        if (node.matches(revealSelector)) added.push(node);
+        added.push(...node.querySelectorAll<HTMLElement>(revealSelector));
+      }
+    }
+    if (added.length) track(added);
+  });
+  const stopScroll = onScroll((y) => {
+    if (!low.size) return;
+    const end = document.documentElement.scrollHeight - readScroll().viewportHeight - 2;
+    if (y >= end) for (const element of [...low]) queue(element);
+  });
+
+  const initial = [...root.querySelectorAll<HTMLElement>(revealSelector)];
+  let armFrame = 0;
+  let attempts = 0;
+  const arm = () => {
+    armFrame = 0;
+    const viewport = window.innerHeight;
+    const shown = initial.filter(
+      (element) =>
+        !element.hasAttribute("data-revealed") && element.getBoundingClientRect().top < viewport,
+    );
+    if (shown.some((element) => !hydrated(element))) {
+      attempts += 1;
+      if (attempts < 180) armFrame = requestAnimationFrame(arm);
+      return;
+    }
+    for (const element of shown) {
+      tracked.add(element);
+      element.setAttribute("data-revealed", "");
+    }
+    track(initial);
+    document.documentElement.setAttribute("data-motion", "");
+    mutations.observe(document.body, { childList: true, subtree: true });
+  };
+  arm();
+
   return () => {
     observer.disconnect();
+    edge.disconnect();
+    mutations.disconnect();
+    stopScroll();
     cancelAnimationFrame(frame);
+    cancelAnimationFrame(armFrame);
   };
 }

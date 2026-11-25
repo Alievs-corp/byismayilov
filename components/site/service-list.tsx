@@ -20,14 +20,15 @@ export function ServiceRows({
 }) {
   const booking = localePath(locale, routes.booking());
   return (
-    <ul className="border-t border-line">
+    <ul data-reveal-group="" className="border-t border-line">
       {services.map((service) => {
         const duration = formatDuration(service.durationMinutes, dict.services);
         return (
           <li
             key={service.id}
             data-service-row=""
-            className="group/row relative flex gap-4 border-b border-line py-5 sm:items-center sm:gap-6 sm:py-6"
+            data-reveal="rule"
+            className="group/row relative flex gap-4 py-5 sm:items-center sm:gap-6 sm:py-6"
           >
             <div className="bg-soft relative aspect-[4/5] w-[4.5rem] shrink-0 overflow-clip rounded-md sm:w-24">
               {service.image ? (

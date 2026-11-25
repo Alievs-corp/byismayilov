@@ -34,7 +34,7 @@ export function HeroPlaceholder({
           {brand}
         </p>
         {subject ? (
-          <div className="hero-subject">
+          <div className="hero-subject arch-settle">
             <Image
               src={subject.src}
               alt={subject.alt}

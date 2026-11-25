@@ -170,6 +170,8 @@
   --motion-base: 400ms;
   --motion-slow: 600ms;
   --motion-slower: 900ms;
+  --motion-reveal: 800ms;
+  --motion-curtain: 1100ms;
   --motion-stagger-word: 60ms;
   --motion-stagger-item: 120ms;
   --motion-scroll-lerp: 0.08;

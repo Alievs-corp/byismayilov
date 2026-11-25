@@ -137,6 +137,16 @@ export function HeaderBar({
     menuButtonRef.current?.focus();
   }, []);
 
+  useEffect(() => {
+    if (!open) return;
+    const wide = matchMedia("(min-width: 80rem)");
+    const onChange = () => {
+      if (wide.matches) setOpenPath(null);
+    };
+    wide.addEventListener("change", onChange);
+    return () => wide.removeEventListener("change", onChange);
+  }, [open]);
+
   return (
     <header
       ref={headerRef}
@@ -150,7 +160,7 @@ export function HeaderBar({
       <div aria-hidden="true" className="site-header-bg" />
       <div
         data-header-row=""
-        className="relative container-page grid h-full grid-cols-[1fr_auto] items-center gap-4 xl:grid-cols-[1fr_auto_1fr]"
+        className="relative z-10 container-page grid h-full grid-cols-[1fr_auto] items-center gap-4 xl:grid-cols-[1fr_auto_1fr]"
       >
         <Link
           href={home}
@@ -206,7 +216,7 @@ export function HeaderBar({
             aria-controls="site-menu"
             aria-label={open ? labels.closeMenu : labels.openMenu}
             onClick={() => setOpenPath(open ? null : pathname)}
-            className={cx(roundButton({ tone: "ink" }), "header-menu-button")}
+            className={cx(roundButton({ tone: "ink" }), "header-menu-button xl:hidden")}
           >
             {open ? <CloseIcon size={20} /> : <MenuLines />}
           </button>

@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { cx } from "@/lib/cx";
 import type { BreadcrumbItem } from "@/lib/seo/json-ld";
 
-import { Breadcrumbs } from "./breadcrumbs";
+import { BreadcrumbData } from "./breadcrumbs";
 import { FitHeading } from "./fit-heading";
 
 export function PageHeading({
@@ -11,7 +11,6 @@ export function PageHeading({
   eyebrow,
   lead,
   breadcrumbs,
-  breadcrumbLabel,
   lang,
   ornament,
   children,
@@ -20,18 +19,17 @@ export function PageHeading({
   eyebrow?: string | null;
   lead?: ReactNode;
   breadcrumbs: BreadcrumbItem[];
-  breadcrumbLabel: string;
   lang?: string;
   ornament?: ReactNode;
   children?: ReactNode;
 }) {
   return (
     <header className="page-heading">
-      <div className="relative container-page pt-6 pb-14 lg:pb-24">
-        <Breadcrumbs items={breadcrumbs} label={breadcrumbLabel} />
+      <BreadcrumbData items={breadcrumbs} />
+      <div className="relative container-page pt-12 pb-14 lg:pt-24 lg:pb-24">
         <div
           className={cx(
-            "gap-x-column mt-10 grid gap-y-6 lg:mt-20 lg:grid-cols-12",
+            "gap-x-column grid gap-y-6 lg:grid-cols-12",
             ornament ? "lg:grid-rows-[auto_1fr]" : null,
           )}
         >

@@ -111,7 +111,7 @@ export function ContactBlock({
             className="rounded-card bg-soft aspect-[4/3] w-full border-0"
           />
         ) : (
-          <div className="map-card">
+          <div data-reveal="scale" className="map-card">
             <span aria-hidden="true" className="map-card-pin">
               <LocationIcon size={32} />
             </span>

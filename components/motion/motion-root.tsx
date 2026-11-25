@@ -11,10 +11,7 @@ export function MotionRoot() {
   const pathname = usePathname();
   const first = useRef(true);
 
-  useEffect(() => {
-    document.documentElement.setAttribute("data-motion", "");
-    return startSmoothScroll();
-  }, []);
+  useEffect(() => startSmoothScroll(), []);
 
   useEffect(() => {
     if (first.current) first.current = false;

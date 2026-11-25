@@ -1,19 +1,84 @@
+[data-reveal="clip"] {
+  isolation: isolate;
+}
+
+[data-reveal="clip"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  background: var(--reveal-cover, var(--color-soft));
+  transform: scaleY(0);
+  transform-origin: top;
+  pointer-events: none;
+}
+
+[data-reveal="rule"]::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  background: var(--color-line);
+  transform-origin: left;
+  pointer-events: none;
+}
+
+.bg-cream,
+.page-heading {
+  --reveal-cover: var(--color-cream);
+}
+
 @media screen and (prefers-reduced-motion: no-preference) {
+  :root[data-motion] [data-reveal] {
+    transition:
+      opacity var(--motion-reveal) var(--ease-out-expo) var(--reveal-delay, 0ms),
+      transform var(--motion-reveal) var(--ease-out-expo) var(--reveal-delay, 0ms);
+  }
   :root[data-motion] [data-reveal]:not([data-revealed]) {
     opacity: 0;
     transform: translateY(1.5rem);
   }
-  :root[data-motion] [data-reveal] {
-    transition:
-      opacity var(--motion-slow) var(--ease-out-expo) var(--reveal-delay, 0ms),
-      transform var(--motion-slow) var(--ease-out-expo) var(--reveal-delay, 0ms);
+  :root[data-motion] [data-reveal="side"]:not([data-revealed]) {
+    transform: translateX(2.5rem);
+  }
+  :root[data-motion] [data-reveal="scale"]:not([data-revealed]) {
+    transform: scale(0.94);
+  }
+  :root[data-motion] [data-reveal="clip"]:not([data-revealed]) {
+    opacity: 1;
+    transform: none;
+  }
+  :root[data-motion] [data-reveal="clip"]::after {
+    transition: transform var(--motion-curtain) var(--ease-out-expo) var(--reveal-delay, 0ms);
+  }
+  :root[data-motion] [data-reveal="clip"]:not([data-revealed])::after {
+    transform: scaleY(1);
+  }
+  :root[data-motion] [data-reveal="clip"] img {
+    transition: scale var(--motion-curtain) var(--ease-out-expo) var(--reveal-delay, 0ms);
+  }
+  :root[data-motion] [data-reveal="clip"]:not([data-revealed]) img {
+    scale: 1.12;
+  }
+  :root[data-motion] [data-reveal="rule"]::after {
+    transition: transform var(--motion-slower) var(--ease-out-soft) var(--reveal-delay, 0ms);
+  }
+  :root[data-motion] [data-reveal="rule"]:not([data-revealed]) {
+    transform: translateY(0.75rem);
+  }
+  :root[data-motion] [data-reveal="rule"]:not([data-revealed])::after {
+    transform: scaleX(0);
   }
   :root[data-motion] [data-line-reveal]:not([data-revealed]) .lr-i {
     transform: translateY(105%);
   }
   :root[data-motion] [data-line-reveal] .lr-i {
-    transition: transform var(--motion-slow) var(--ease-out-expo)
+    transition: transform var(--motion-reveal) var(--ease-out-expo)
       calc(var(--line, 0) * var(--motion-stagger-item));
+  }
+  .arch-settle img {
+    animation: arch-settle var(--motion-curtain) var(--ease-out-soft) both;
   }
   :root[data-motion] [data-wordmark]:not([data-revealed]) .wm-l {
     transform: translateY(40%);
@@ -613,6 +678,12 @@ html.lenis body {
   }
   .glow[data-float][data-playing] {
     animation-play-state: running;
+  }
+}
+
+@keyframes arch-settle {
+  from {
+    scale: 1.08;
   }
 }
 

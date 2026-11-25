@@ -25,15 +25,21 @@ server (port 3030) to see every token and component rendered.
    caramel-ink for accent text and icons, one blush card per row, dark only for
    the footer and the booking band. White text only on ink, espresso, dark or
    the dark part of the hero field.
-5. **Ornaments.** At most one per section, about five on the whole site,
+5. **Ornaments.** At most one per section, ten places on the whole site,
    never behind text, prices or fields, never in card grids, never in the
-   admin. Already placed: home services head (hair-strand), booking band
-   (hair-wave + glow), footer (eucalyptus), empty states and 404
-   (blossom-spray). Left for page work: `/qeydiyyat` side column on desktop
-   (magnolia + `glow-orb-light`), `/ustalar` page head (peony via
-   `PageHeading ornament`). Do not add others without removing one.
-6. **Motion.** One-shot reveals only (`data-reveal`, `data-ornament`); no new
-   loops; transform and opacity; reduced motion shows the final state.
+   admin. Placed: home services head (hair-strand), booking band (hair-wave +
+   glow), footer (eucalyptus), empty states and 404 (blossom-spray),
+   `/qeydiyyat` side (magnolia + glow), page heads of `/ustalar` (peony),
+   `/xidmetler` (hair-wave), `/islerimiz` (hair-strand), `/elaqe`
+   (eucalyptus-line), blog post end (blossom-spray). Do not add others without
+   removing one.
+6. **Motion.** One-shot reveals from the vocabulary in `docs/DESIGN.md`
+   section 6: `data-reveal` (rise), `side` (rails), `scale` (bands, map
+   cards), `clip` (photos), `rule` (list rows), `LineReveal` (section titles),
+   stagger with `data-reveal-group`. Vary them by section; do not fade
+   everything the same way. Transform, scale and opacity only, 0.5 to 1.2s,
+   ease-out; no new loops; reduced motion shows the final state; nothing in
+   the first viewport waits for JavaScript.
 7. **Rhythm.** Not every section a grid of three. Mix rail, split, mosaic,
    list and band; alternate white and cream.
 8. **Facts.** Never invent prices, hours, reviews, names or numbers. Missing

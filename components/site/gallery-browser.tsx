@@ -1,7 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent,
+} from "react";
 
 import {
   ArrowLeftIcon,
@@ -11,6 +18,7 @@ import {
   PlayIcon,
 } from "@/components/icons/iconsax";
 import { cx } from "@/lib/cx";
+import { lockScroll } from "@/lib/motion/smooth-scroll";
 import { fill } from "@/lib/i18n/format";
 import type { PublicGalleryItem } from "@/lib/public/gallery";
 import type { PublicImage } from "@/lib/public/images";
@@ -29,7 +37,7 @@ export type GalleryLabels = {
 
 const ratios = ["aspect-[4/5]", "aspect-[3/4]", "aspect-square", "aspect-[4/5]", "aspect-[5/6]"];
 
-const tileSizes = "(min-width: 1024px) 30vw, (min-width: 640px) 46vw, 92vw";
+const tileSizes = "(min-width: 1024px) 30vw, 46vw";
 
 function Cover({ image, sizes, eager }: { image: PublicImage; sizes: string; eager: boolean }) {
   return (
@@ -39,6 +47,7 @@ function Cover({ image, sizes, eager }: { image: PublicImage; sizes: string; eag
       fill
       sizes={sizes}
       loading={eager ? "eager" : "lazy"}
+      quality={60}
       placeholder={image.blurDataURL ? "blur" : "empty"}
       blurDataURL={image.blurDataURL ?? undefined}
       className="card-photo object-cover"
@@ -47,11 +56,7 @@ function Cover({ image, sizes, eager }: { image: PublicImage; sizes: string; eag
 }
 
 function columnTop(index: number, total: number) {
-  return [2, 3].some((columns) =>
-    Array.from({ length: columns }, (_, column) => Math.ceil((total * column) / columns)).includes(
-      index,
-    ),
-  );
+  return index === 0 || index === Math.ceil(total / 2);
 }
 
 function Tile({
@@ -77,6 +82,8 @@ function Tile({
         onClick={() => onOpen(index)}
         aria-haspopup="dialog"
         aria-label={`${labels.open}: ${name}`}
+        data-reveal="clip"
+        style={{ "--reveal-delay": `${(index % 3) * 100}ms` } as CSSProperties}
         className="rounded-card bg-soft relative block w-full overflow-clip text-left"
       >
         <span className={cx("relative block", ratios[index % ratios.length])}>
@@ -209,20 +216,20 @@ export function GalleryBrowser({
     const node = dialog.current;
     if (!node || current === null || node.open) return;
     node.showModal();
-    document.documentElement.style.overflow = "hidden";
+    lockScroll(true);
   }, [current]);
 
   useEffect(() => {
     const node = dialog.current;
     if (!node) return;
     const onClose = () => {
-      document.documentElement.style.overflow = "";
+      lockScroll(false);
       setCurrent(null);
     };
     node.addEventListener("close", onClose);
     return () => {
       node.removeEventListener("close", onClose);
-      document.documentElement.style.overflow = "";
+      if (node.open) lockScroll(false);
     };
   }, []);
 

@@ -53,7 +53,6 @@ export default async function BookingPage({ searchParams }: PageProps<"/[locale]
       <PageHeading
         title={dict.booking.title}
         lead={<p>{dict.booking.intro}</p>}
-        breadcrumbLabel={dict.common.breadcrumb}
         breadcrumbs={[
           { label: dict.common.home, href: localePath(locale) },
           { label: dict.booking.title, href: path },

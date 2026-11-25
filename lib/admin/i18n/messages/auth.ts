@@ -22,6 +22,7 @@ export const ru = {
   "E-poçtunuzu yazın, yeni şifrə təyin etmək üçün link göndərək.":
     "Введите эл. почту, и мы отправим ссылку для установки нового пароля.",
   "Girişə qayıt": "Вернуться ко входу",
+  "Ana səhifəyə qayıt": "На главную страницу",
   "Bu ünvan sistemdə varsa, {email} poçtuna link göndərdik. Link 24 saat etibarlıdır.":
     "Если этот адрес есть в системе, мы отправили ссылку на {email}. Ссылка действует 24 часа.",
   Göndərilir: "Отправка",
@@ -60,6 +61,7 @@ export const en: Record<keyof typeof ru, string> = {
   "E-poçtunuzu yazın, yeni şifrə təyin etmək üçün link göndərək.":
     "Enter your email and we will send a link to set a new password.",
   "Girişə qayıt": "Back to sign in",
+  "Ana səhifəyə qayıt": "Back to the home page",
   "Bu ünvan sistemdə varsa, {email} poçtuna link göndərdik. Link 24 saat etibarlıdır.":
     "If this address is in the system, we sent a link to {email}. The link is valid for 24 hours.",
   Göndərilir: "Sending",

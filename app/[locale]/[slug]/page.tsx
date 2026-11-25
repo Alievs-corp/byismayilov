@@ -63,7 +63,6 @@ export default async function CmsPage({ params }: PageProps<"/[locale]/[slug]">)
     <>
       <PageHeading
         title={page.title}
-        breadcrumbLabel={dict.common.breadcrumb}
         breadcrumbs={[
           { label: dict.common.home, href: localePath(locale) },
           { label: page.title, href: path },

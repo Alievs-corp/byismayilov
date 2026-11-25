@@ -11,6 +11,7 @@ import {
   mapHref,
 } from "@/components/site/contact-details";
 import { JsonLdScript } from "@/components/site/json-ld";
+import { Ornament } from "@/components/ornament/ornament";
 import { PageHeading } from "@/components/site/page-heading";
 import { env } from "@/lib/env";
 import { localePath } from "@/lib/i18n/config";
@@ -55,7 +56,13 @@ export default async function ContactPage() {
       <PageHeading
         title={dict.contact.title}
         lead={<p>{dict.contact.intro}</p>}
-        breadcrumbLabel={dict.common.breadcrumb}
+        ornament={
+          <Ornament
+            name="eucalyptus-line"
+            width={{ base: 150, lg: 190 }}
+            className="text-caramel-ink"
+          />
+        }
         breadcrumbs={[
           { label: dict.common.home, href: localePath(locale) },
           { label: dict.contact.title, href: path },
@@ -69,7 +76,11 @@ export default async function ContactPage() {
             <p className="text-ink-muted">{dict.contact.empty}</p>
           )}
           {address ? (
-            <section aria-labelledby="find-us" className="rounded-card bg-cream p-6 sm:p-10">
+            <section
+              aria-labelledby="find-us"
+              data-reveal=""
+              className="rounded-card bg-cream p-6 sm:p-10"
+            >
               <h2 id="find-us" className="text-h3">
                 {dict.contact.findTitle}
               </h2>
@@ -95,7 +106,7 @@ export default async function ContactPage() {
               className="rounded-card bg-soft aspect-[4/5] w-full border-0"
             />
           ) : (
-            <div className="map-card lg:aspect-[4/5]">
+            <div data-reveal="scale" className="map-card lg:aspect-[4/5]">
               <span aria-hidden="true" className="map-card-pin">
                 <LocationIcon size={32} />
               </span>

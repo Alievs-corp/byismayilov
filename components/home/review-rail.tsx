@@ -19,11 +19,12 @@ export function ReviewRail({
   return (
     <ul
       id={id}
+      data-reveal-group=""
       className="rail"
       style={{ "--rail-pad": "var(--spacing-gutter)" } as React.CSSProperties}
     >
       {reviews.map((review, index) => (
-        <li key={review.id} data-rail-item="" data-review="">
+        <li key={review.id} data-rail-item="" data-review="" data-reveal="side">
           <figure
             className={cx(
               card({ tone: index % 3 === 1 ? "blush" : "soft" }),

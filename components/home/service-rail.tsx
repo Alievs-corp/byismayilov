@@ -81,11 +81,12 @@ export function ServiceRail({
   return (
     <ul
       id={id}
+      data-reveal-group=""
       className="rail"
       style={{ "--rail-pad": "var(--spacing-gutter)" } as React.CSSProperties}
     >
       {services.map((service, index) => (
-        <li key={service.id} data-rail-item="">
+        <li key={service.id} data-rail-item="" data-reveal="side">
           <ServiceCard service={service} locale={locale} dict={dict} accent={index === 1} />
         </li>
       ))}

@@ -29,7 +29,6 @@ export function MasterShowcase({
           <li key={master.id} id={master.id} data-master-card="" className="scroll-mt-28">
             <article className="gap-x-column grid items-center gap-y-10 md:grid-cols-12">
               <div
-                data-reveal=""
                 className={cx(
                   "relative md:col-span-5",
                   flip ? "md:order-2 md:col-start-8" : "md:col-start-1",
@@ -42,7 +41,10 @@ export function MasterShowcase({
                     flip ? "translate-x-6" : "-translate-x-6",
                   )}
                 />
-                <div className="bg-champagne arch-portrait relative aspect-[4/5] overflow-clip">
+                <div
+                  data-reveal="clip"
+                  className="bg-champagne arch-portrait relative aspect-[4/5] overflow-clip"
+                >
                   {master.photo ? (
                     <Image
                       src={master.photo.src}

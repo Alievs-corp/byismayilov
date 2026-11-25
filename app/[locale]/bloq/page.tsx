@@ -49,7 +49,6 @@ export default async function BlogPage({ searchParams }: PageProps<"/[locale]/bl
       <PageHeading
         title={dict.blog.title}
         lead={<p>{dict.blog.description}</p>}
-        breadcrumbLabel={dict.common.breadcrumb}
         breadcrumbs={[
           { label: dict.common.home, href: localePath(locale) },
           { label: dict.blog.title, href: path },

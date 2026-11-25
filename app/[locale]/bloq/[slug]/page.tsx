@@ -9,6 +9,7 @@ import { RowPreview } from "@/components/motion/row-preview";
 import { LineReveal } from "@/components/motion/text";
 import { ArticleBody } from "@/components/site/article-body";
 import { JsonLdScript } from "@/components/site/json-ld";
+import { Ornament } from "@/components/ornament/ornament";
 import { PageHeading } from "@/components/site/page-heading";
 import { richTextToPlain, summarize } from "@/lib/content/rich-text";
 import { env } from "@/lib/env";
@@ -73,7 +74,6 @@ export default async function PostPage({ params }: PageProps<"/[locale]/bloq/[sl
           eyebrow={formatPostDate(post.publishedAt, locale)}
           title={post.title}
           lead={post.excerpt ? <p>{post.excerpt}</p> : null}
-          breadcrumbLabel={dict.common.breadcrumb}
           breadcrumbs={[
             { label: dict.common.home, href: localePath(locale) },
             { label: dict.blog.title, href: blog },
@@ -104,6 +104,13 @@ export default async function PostPage({ params }: PageProps<"/[locale]/bloq/[sl
         {post.content ? (
           <div className="container-page py-section">
             <ArticleBody doc={post.content} contentsLabel={dict.pages.contents} />
+            <div className="mt-16 flex justify-center">
+              <Ornament
+                name="blossom-spray"
+                width={{ base: 120, lg: 150 }}
+                className="text-caramel-ink"
+              />
+            </div>
           </div>
         ) : null}
       </article>
