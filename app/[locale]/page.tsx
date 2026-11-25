@@ -5,22 +5,27 @@ import Link from "next/link";
 import { connection } from "next/server";
 import type { ReactNode } from "react";
 
+import { BookingBand } from "@/components/home/booking-band";
+import { ContactBlock } from "@/components/home/contact-block";
 import { HeroFilm } from "@/components/home/hero-film";
 import { HeroPlaceholder } from "@/components/home/hero-placeholder";
+import { MasterFeature } from "@/components/home/master-feature";
+import { ReviewRail } from "@/components/home/review-rail";
+import { ServiceRail } from "@/components/home/service-rail";
+import { WorkMosaic } from "@/components/home/work-mosaic";
 import { ArrowRightIcon } from "@/components/icons/iconsax";
+import { Ornament } from "@/components/ornament/ornament";
 import { FactBlockView } from "@/components/seo/fact-block";
-import { button, buttonArrow } from "@/components/site/button";
-import { ContactDetails, hasContactDetails } from "@/components/site/contact-details";
-import { GalleryGrid } from "@/components/site/gallery-grid";
+import { button, buttonArrow, textLink } from "@/components/site/button";
+import { hasContactDetails } from "@/components/site/contact-details";
 import { JsonLdScript } from "@/components/site/json-ld";
-import { MasterCards } from "@/components/site/master-cards";
+import { RailControls } from "@/components/site/rail";
 import { RichText } from "@/components/site/rich-text";
-import { ServiceRows } from "@/components/site/service-list";
+import { SectionHead } from "@/components/site/section-head";
 import { cx } from "@/lib/cx";
 import { env } from "@/lib/env";
 import { localePath, type Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
-import { fill } from "@/lib/i18n/format";
 import { pickExact, pickLocale } from "@/lib/i18n/localized";
 import { getRequestDictionary } from "@/lib/i18n/server";
 import { getGalleryPreview } from "@/lib/public/gallery";
@@ -63,35 +68,22 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-function SectionShell({
+function Section({
   id,
-  title,
-  link,
+  tone = "white",
   children,
 }: {
   id: string;
-  title: string;
-  link?: { label: string; href: string } | null;
+  tone?: "white" | "cream";
   children: ReactNode;
 }) {
   return (
-    <section aria-labelledby={id} data-home-section={id}>
-      <div className="container-page py-section">
-        <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
-          <h2 id={id} className="text-h2">
-            {title}
-          </h2>
-          {link ? (
-            <Link
-              href={link.href}
-              className="inline-flex min-h-11 items-center text-small font-medium uppercase underline underline-offset-4"
-            >
-              {link.label}
-            </Link>
-          ) : null}
-        </div>
-        <div className="mt-10">{children}</div>
-      </div>
+    <section
+      aria-labelledby={id}
+      data-home-section={id}
+      className={cx("defer-render", tone === "cream" && "bg-cream")}
+    >
+      <div className="container-page py-section">{children}</div>
     </section>
   );
 }
@@ -100,114 +92,120 @@ async function BuiltInSection({
   section,
   locale,
   dict,
+  skipGalleryItem,
 }: {
   section: Extract<HomeSection, { title: string | null }>;
   locale: Locale;
   dict: Dictionary;
+  skipGalleryItem: string | null;
 }) {
   const id = `home-${section.key}`;
+  const booking = { label: dict.common.bookOnline, href: localePath(locale, routes.booking()) };
   switch (section.key) {
     case "services": {
       const services = await getFeaturedServices(locale);
       if (!services.length) return null;
+      const rail = `${id}-rail`;
       return (
-        <SectionShell
-          id={id}
-          title={section.title ?? dict.home.servicesTitle}
-          link={{ label: dict.common.allServices, href: localePath(locale, routes.services()) }}
-        >
-          <ServiceRows services={services} locale={locale} dict={dict} />
-        </SectionShell>
+        <Section id={id}>
+          <SectionHead
+            id={id}
+            title={section.title ?? dict.home.servicesTitle}
+            ornament={
+              <Ornament
+                name="hair-strand"
+                width={{ base: 96, md: 120, lg: 140 }}
+                ink={1.2}
+                className="text-caramel-ink"
+              />
+            }
+            body={
+              <>
+                <p>{dict.home.servicesBody}</p>
+                <Link
+                  href={localePath(locale, routes.services())}
+                  className={cx(textLink(), "mt-2")}
+                >
+                  {dict.common.allServices}
+                </Link>
+              </>
+            }
+            aside={
+              <RailControls target={rail} previous={dict.common.previous} next={dict.common.next} />
+            }
+          />
+          <div className="mt-12 lg:mt-16">
+            <ServiceRail id={rail} services={services} locale={locale} dict={dict} />
+          </div>
+        </Section>
       );
     }
     case "masters": {
-      const masters = (await getMasters(locale)).slice(0, 3);
+      const masters = (await getMasters(locale)).slice(0, 4);
       if (!masters.length) return null;
       return (
-        <SectionShell
-          id={id}
-          title={section.title ?? dict.home.mastersTitle}
-          link={{ label: dict.masters.title, href: localePath(locale, routes.masters()) }}
-        >
-          <MasterCards masters={masters} locale={locale} dict={dict} headingLevel={3} />
-        </SectionShell>
+        <Section id={id} tone="cream">
+          <MasterFeature
+            id={id}
+            title={section.title ?? dict.home.masterLabel}
+            masters={masters}
+            locale={locale}
+            dict={dict}
+          />
+        </Section>
       );
     }
     case "gallery": {
-      const items = await getGalleryPreview(locale);
+      const items = (await getGalleryPreview(locale)).filter((item) => item.id !== skipGalleryItem);
       if (!items.length) return null;
       return (
-        <SectionShell
-          id={id}
-          title={section.title ?? dict.home.galleryTitle}
-          link={{ label: dict.gallery.title, href: localePath(locale, routes.gallery()) }}
-        >
-          <GalleryGrid items={items} dict={dict} />
-        </SectionShell>
+        <Section id={id}>
+          <SectionHead
+            id={id}
+            title={section.title ?? dict.home.galleryTitle}
+            body={<p>{dict.home.galleryBody}</p>}
+            aside={
+              <Link href={localePath(locale, routes.gallery())} className={textLink()}>
+                {dict.home.allWork}
+                <ArrowRightIcon size={16} />
+              </Link>
+            }
+          />
+          <div className="mt-12 lg:mt-16">
+            <WorkMosaic items={items} />
+          </div>
+        </Section>
       );
     }
     case "reviews": {
       const reviews = await getReviews(locale);
       if (!reviews.length) return null;
+      const rail = `${id}-rail`;
       return (
-        <SectionShell id={id} title={section.title ?? dict.home.reviewsTitle}>
-          <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {reviews.map((review) => (
-              <li key={review.id} data-review="" className="border border-line p-6">
-                <figure className="flex h-full flex-col gap-4">
-                  <blockquote className="whitespace-pre-line">{review.body}</blockquote>
-                  <figcaption className="mt-auto flex items-center gap-3 text-small">
-                    {review.photo ? (
-                      <Image
-                        src={review.photo.src}
-                        alt={review.photo.alt}
-                        width={40}
-                        height={40}
-                        sizes="40px"
-                        className="size-10 rounded-full object-cover"
-                      />
-                    ) : null}
-                    <span>
-                      <span className="block font-medium">{review.authorName}</span>
-                      {review.rating ? (
-                        <span className="text-ink-muted block">
-                          {fill(dict.reviews.rating, { rating: review.rating })}
-                        </span>
-                      ) : null}
-                    </span>
-                    {review.sourceUrl ? (
-                      <a
-                        href={review.sourceUrl}
-                        target="_blank"
-                        rel="noopener nofollow"
-                        className="ml-auto underline underline-offset-4"
-                      >
-                        {dict.reviews.source}
-                      </a>
-                    ) : null}
-                  </figcaption>
-                </figure>
-              </li>
-            ))}
-          </ul>
-        </SectionShell>
+        <Section id={id}>
+          <SectionHead
+            id={id}
+            title={section.title ?? dict.home.reviewsTitle}
+            aside={
+              <RailControls target={rail} previous={dict.common.previous} next={dict.common.next} />
+            }
+          />
+          <div className="mt-12">
+            <ReviewRail id={rail} reviews={reviews} dict={dict} />
+          </div>
+        </Section>
       );
     }
     case "booking":
       return (
-        <section aria-labelledby={id} data-home-section={id} className="surface-dark">
-          <div className="container-page flex flex-col items-start gap-6 py-section">
-            <h2 id={id} className="text-h2">
-              {section.title ?? dict.home.bookingTitle}
-            </h2>
-            <p className="max-w-2xl text-lead">{dict.home.bookingBody}</p>
-            <Link
-              href={localePath(locale, routes.booking())}
-              className={button({ variant: "accent" })}
-            >
-              {dict.common.bookOnline}
-              <ArrowRightIcon size={20} className={buttonArrow} />
-            </Link>
+        <section aria-labelledby={id} data-home-section={id} className="defer-render">
+          <div className="container-page py-section">
+            <BookingBand
+              id={id}
+              title={section.title ?? dict.home.bookingTitle}
+              body={dict.home.bookingBody}
+              primary={booking}
+            />
           </div>
         </section>
       );
@@ -215,34 +213,51 @@ async function BuiltInSection({
       const posts = await getLatestPosts(locale);
       if (!posts.length) return null;
       return (
-        <SectionShell
-          id={id}
-          title={section.title ?? dict.home.postsTitle}
-          link={{ label: dict.blog.back, href: localePath(locale, routes.blog()) }}
-        >
-          <ul className="border-t border-line">
+        <Section id={id}>
+          <SectionHead
+            id={id}
+            title={section.title ?? dict.home.postsTitle}
+            aside={
+              <Link href={localePath(locale, routes.blog())} className={textLink()}>
+                {dict.blog.back}
+              </Link>
+            }
+          />
+          <ul className="mt-12 border-t border-line">
             {posts.map((post) => (
-              <li key={post.id} className="border-b border-line py-4">
-                <Link href={post.href} prefetch={false} className="text-h4 hover:underline">
-                  {post.title}
+              <li key={post.id} className="border-b border-line">
+                <Link
+                  href={post.href}
+                  prefetch={false}
+                  className="group/post flex min-h-20 items-center justify-between gap-6 py-5"
+                >
+                  <span className="font-display text-h3">{post.title}</span>
+                  <ArrowRightIcon
+                    size={24}
+                    className="shrink-0 transition-transform duration-200 group-hover/post:translate-x-1"
+                  />
                 </Link>
               </li>
             ))}
           </ul>
-        </SectionShell>
+        </Section>
       );
     }
     case "contact": {
       const settings = await getSiteSettings();
       if (!hasContactDetails(settings)) return null;
       return (
-        <SectionShell
-          id={id}
-          title={section.title ?? dict.home.contactTitle}
-          link={{ label: dict.contact.title, href: localePath(locale, routes.contact()) }}
-        >
-          <ContactDetails settings={settings} locale={locale} dict={dict} />
-        </SectionShell>
+        <Section id={id} tone="cream">
+          <ContactBlock
+            id={id}
+            title={section.title ?? dict.home.contactTitle}
+            body={dict.home.contactBody}
+            settings={settings}
+            locale={locale}
+            dict={dict}
+            booking={booking}
+          />
+        </Section>
       );
     }
   }
@@ -253,11 +268,15 @@ function CustomSection({ id, block }: { id: string; block: CustomBlock }) {
   return (
     <section
       aria-labelledby={block.title ? `custom-${id}` : undefined}
-      className={dark ? "surface-dark" : block.tone === "light" ? "surface-soft" : undefined}
+      className={dark ? "surface-dark" : block.tone === "light" ? "bg-cream" : undefined}
     >
       <div className="gap-x-column container-page grid gap-y-10 py-section lg:grid-cols-12">
         <div className={block.image || block.video ? "lg:col-span-6" : "lg:col-span-8"}>
-          {block.eyebrow ? <p className="text-label uppercase">{block.eyebrow}</p> : null}
+          {block.eyebrow ? (
+            <p className={cx("text-label uppercase", !dark && "text-caramel-ink")}>
+              {block.eyebrow}
+            </p>
+          ) : null}
           {block.title ? (
             <h2 id={`custom-${id}`} className="mt-4 text-h2">
               {block.title}
@@ -267,7 +286,7 @@ function CustomSection({ id, block }: { id: string; block: CustomBlock }) {
           {block.link ? (
             <Link
               href={block.link.href}
-              className={cx(button({ variant: dark ? "accent" : "filled" }), "mt-8")}
+              className={cx(button({ variant: dark ? "light" : "filled" }), "mt-8")}
             >
               {block.link.label}
               <ArrowRightIcon size={20} className={buttonArrow} />
@@ -282,7 +301,7 @@ function CustomSection({ id, block }: { id: string; block: CustomBlock }) {
               width={block.image.width}
               height={block.image.height}
               sizes="(min-width: 1024px) 50vw, 100vw"
-              className="h-auto w-full"
+              className="rounded-card h-auto w-full"
             />
           </div>
         ) : block.video ? (
@@ -294,7 +313,7 @@ function CustomSection({ id, block }: { id: string; block: CustomBlock }) {
               preload="metadata"
               poster={block.poster?.src}
               aria-label={block.video.label ?? undefined}
-              className="h-auto w-full"
+              className="rounded-card h-auto w-full"
             >
               <source src={block.video.src} type={block.video.type} />
             </video>
@@ -327,15 +346,17 @@ function offerCatalog(corpus: Corpus, locale: Locale): OfferCatalogEntry[] {
 export default async function HomePage() {
   await connection();
   const { locale, dict } = await getRequestDictionary();
-  const [hero, sections, settings, requestHeaders, corpus] = await Promise.all([
+  const [hero, sections, settings, requestHeaders, corpus, gallery] = await Promise.all([
     getHero(locale),
     getHomeSections(locale),
     getSiteSettings(),
     headers(),
     getCorpus(),
+    getGalleryPreview(locale),
   ]);
   const saveData = requestHeaders.get("save-data")?.toLowerCase() === "on";
   const booking = { label: dict.hero.book, href: localePath(locale, routes.booking()) };
+  const subjectItem = hero?.film ? null : (gallery.find((item) => item.image) ?? null);
 
   return (
     <>
@@ -359,9 +380,11 @@ export default async function HomePage() {
         <HeroPlaceholder
           brand={dict.meta.siteName}
           headline={hero?.headline || dict.hero.headline}
-          subline={hero?.subline ?? null}
+          subline={hero?.subline ?? dict.hero.subline}
           primary={booking}
           secondary={{ label: dict.hero.services, href: localePath(locale, routes.services()) }}
+          chips={[dict.hero.chipA, dict.hero.chipB].filter(Boolean)}
+          subject={subjectItem?.image ?? null}
         />
       )}
       {sections
@@ -370,7 +393,13 @@ export default async function HomePage() {
           section.key === "custom" ? (
             <CustomSection key={section.id} id={section.id} block={section.block} />
           ) : (
-            <BuiltInSection key={section.key} section={section} locale={locale} dict={dict} />
+            <BuiltInSection
+              key={section.key}
+              section={section}
+              locale={locale}
+              dict={dict}
+              skipGalleryItem={subjectItem?.id ?? null}
+            />
           ),
         )}
       <div className="container-page py-section">

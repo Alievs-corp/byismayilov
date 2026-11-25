@@ -10,16 +10,24 @@ import { readMediaObject } from "@/lib/media";
 import { ogImageSize, siteName } from "./config";
 import type { OgCard } from "./og-card";
 
-const colors = { dark: "#111111", accent: "#d9d9d9", soft: "#f2f2f2", white: "#ffffff" } as const;
+const colors = {
+  dark: "#16110e",
+  accent: "#ecdcc3",
+  honey: "#dca35c",
+  soft: "#f4eee7",
+  white: "#ffffff",
+} as const;
 
 const fontFiles = [
-  { name: "Inter", file: "inter-latin-700.ttf", weight: 700 },
-  { name: "InterCyrillic", file: "inter-cyrillic-700.ttf", weight: 700 },
-  { name: "Inter", file: "inter-latin-500.ttf", weight: 500 },
-  { name: "InterCyrillic", file: "inter-cyrillic-500.ttf", weight: 500 },
+  { name: "Display", file: "display-latin-400.ttf", weight: 400 },
+  { name: "DisplayCyrillic", file: "display-cyrillic-400.ttf", weight: 400 },
+  { name: "Sans", file: "sans-latin-700.ttf", weight: 700 },
+  { name: "SansCyrillic", file: "sans-cyrillic-700.ttf", weight: 700 },
+  { name: "Sans", file: "sans-latin-500.ttf", weight: 500 },
+  { name: "SansCyrillic", file: "sans-cyrillic-500.ttf", weight: 500 },
 ] as const;
 
-type Font = { name: string; data: Buffer; weight: 500 | 700; style: "normal" };
+type Font = { name: string; data: Buffer; weight: 400 | 500 | 700; style: "normal" };
 
 let fonts: Promise<Font[]> | undefined;
 
@@ -72,7 +80,7 @@ export async function renderOgImage(card: OgCard, host: string): Promise<ImageRe
         width: ogImageSize.width,
         height: ogImageSize.height,
         background: colors.dark,
-        fontFamily: "Inter, InterCyrillic",
+        fontFamily: "Sans, SansCyrillic",
         color: colors.white,
       }}
     >
@@ -87,16 +95,24 @@ export async function renderOgImage(card: OgCard, host: string): Promise<ImageRe
         }}
       >
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ display: "flex", fontSize: 36, fontWeight: 700, letterSpacing: 4 }}>
+          <div
+            style={{
+              display: "flex",
+              fontFamily: "Display, DisplayCyrillic",
+              fontSize: 44,
+              fontWeight: 400,
+              letterSpacing: -0.5,
+            }}
+          >
             {siteName}
           </div>
           <div
             style={{
               display: "flex",
               width: 64,
-              height: 6,
-              marginTop: 14,
-              background: colors.accent,
+              height: 2,
+              marginTop: 18,
+              background: colors.honey,
             }}
           />
         </div>
@@ -110,10 +126,11 @@ export async function renderOgImage(card: OgCard, host: string): Promise<ImageRe
             style={{
               display: "flex",
               marginTop: 18,
+              fontFamily: "Display, DisplayCyrillic",
               fontSize: titleSize(card.title),
-              fontWeight: 700,
+              fontWeight: 400,
               lineHeight: 1.08,
-              letterSpacing: -1.5,
+              letterSpacing: -1,
             }}
           >
             {card.title}

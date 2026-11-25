@@ -1,8 +1,8 @@
-import Image from "next/image";
 import { connection } from "next/server";
 
 import { localePath, locales, type Locale } from "@/lib/i18n/config";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
+import { pickLocale } from "@/lib/i18n/localized";
 import { hideBlogWithoutPosts } from "@/lib/public/blog-link";
 import { getMenu, type PublicMenuItem } from "@/lib/public/menus";
 import { getSiteSettings } from "@/lib/public/settings";
@@ -10,6 +10,7 @@ import { routes } from "@/lib/routes";
 import { mainMenuKey } from "@/lib/validation/menus";
 
 import { HeaderBar, type HeaderLink } from "./header-bar";
+import { SiteLogo } from "./site-logo";
 
 function fallbackMenu(locale: Locale, dict: Dictionary): PublicMenuItem[] {
   const item = (id: string, label: string, path: string): PublicMenuItem => ({
@@ -41,27 +42,15 @@ export async function SiteHeader({ locale, dict }: { locale: Locale; dict: Dicti
     Locale,
     string
   >;
-  const light = settings.logoLight;
-  const logo =
-    light?.width && light.height ? (
-      <Image
-        src={light.src}
-        alt={dict.meta.siteName}
-        width={light.width}
-        height={light.height}
-        sizes="200px"
-        className="h-10 w-auto md:h-12"
-      />
-    ) : null;
 
   return (
     <HeaderBar
       locale={locale}
       home={localePath(locale)}
       items={items}
-      logo={logo}
+      brand={<SiteLogo image={settings.logoLight} name={dict.meta.siteName} />}
       siteName={dict.meta.siteName}
-      contact={{ href: localePath(locale, routes.booking()), label: dict.common.bookOnline }}
+      booking={{ href: localePath(locale, routes.booking()), label: dict.common.bookOnline }}
       names={names}
       labels={{
         navigation: dict.common.mainNavigation,
@@ -69,9 +58,14 @@ export async function SiteHeader({ locale, dict }: { locale: Locale; dict: Dicti
         openMenu: dict.common.openMenu,
         closeMenu: dict.common.closeMenu,
         home: dict.common.home,
+        contact: dict.common.contact,
+        instagram: dict.masters.instagram,
       }}
-      phones={settings.phones.map((phone) => phone.number)}
-      emails={settings.emails}
+      contact={{
+        phones: settings.phones.map((phone) => phone.number),
+        address: settings.address ? pickLocale(settings.address, locale) || null : null,
+        instagram: settings.socials.find((social) => social.network === "instagram")?.url ?? null,
+      }}
     />
   );
 }

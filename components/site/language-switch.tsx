@@ -86,9 +86,9 @@ export function LanguageMenu({
         aria-controls="language-menu"
         aria-label={`${label}: ${names[locale]}`}
         onClick={() => setOpen((current) => !current)}
-        className="inline-flex min-h-11 items-center gap-2 rounded-full px-3 text-small font-medium uppercase transition-colors duration-200 ease-standard hover:text-accent"
+        className="language-button text-label inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 uppercase transition-colors duration-200 ease-standard"
       >
-        <GlobeIcon size={20} />
+        <GlobeIcon size={20} className="max-sm:hidden" />
         <span lang={locale}>{locale}</span>
         <ArrowDownIcon
           size={16}
@@ -98,7 +98,7 @@ export function LanguageMenu({
       {open ? (
         <ul
           id="language-menu"
-          className="animate-fade text-ink shadow-island absolute top-full right-0 mt-2 min-w-48 rounded-sm bg-white py-2"
+          className="animate-fade text-ink shadow-float absolute top-full right-0 mt-2 min-w-52 overflow-clip rounded-lg bg-white py-2"
         >
           {locales.map((code) => (
             <li key={code}>
@@ -148,7 +148,7 @@ export function LanguageList({
               aria-label={names[code]}
               className={cx(
                 "inline-flex min-h-11 min-w-14 items-center justify-center rounded-full border px-4 text-small font-medium uppercase",
-                code === locale ? "text-ink border-accent bg-accent" : "border-white/40 text-white",
+                code === locale ? "border-ink bg-ink text-white" : "text-ink border-ink/20",
               )}
             >
               {code}

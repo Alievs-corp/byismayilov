@@ -15,18 +15,18 @@ import {
   ArrowRightIcon,
   CallIcon,
   CloseIcon,
-  MailIcon,
-  MenuIcon,
+  InstagramIcon,
+  LocationIcon,
 } from "@/components/icons/iconsax";
-import { mailtoHref, telHref } from "@/lib/contact-links";
+import { telHref } from "@/lib/contact-links";
 import { cx } from "@/lib/cx";
 import type { Locale } from "@/lib/i18n/config";
 import { documentTop, measure, onScroll, readScroll } from "@/lib/motion/loop";
 import { lockScroll, scrollToTop } from "@/lib/motion/smooth-scroll";
 import { formatAzerbaijaniPhone } from "@/lib/phone";
 
-import { button, buttonArrow } from "./button";
-import { LanguageMenu, LanguageList } from "./language-switch";
+import { button, buttonArrow, roundButton } from "./button";
+import { LanguageList, LanguageMenu } from "./language-switch";
 
 export type HeaderLink = { id: string; label: string; href: string };
 
@@ -38,10 +38,20 @@ type Labels = {
   openMenu: string;
   closeMenu: string;
   home: string;
+  contact: string;
+  instagram: string;
 };
 
+export type HeaderContact = {
+  phones: string[];
+  address: string | null;
+  instagram: string | null;
+};
+
+const clearUntil = 24;
+
 function isCurrent(pathname: string, href: string) {
-  if (href === "/" || /^\/(ru|en|de)$/.test(href)) return pathname === href;
+  if (href === "/" || /^\/(ru|en)$/.test(href)) return pathname === href;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -70,19 +80,23 @@ function useHeaderState(headerRef: React.RefObject<HTMLElement | null>, pathname
   useEffect(() => {
     const header = headerRef.current;
     if (!header) return;
-    let limit = filmEnd(header);
-    const update = (y: number) => setState(limit !== null && y < limit ? "clear" : "solid");
+    let limit = filmEnd(header) ?? clearUntil;
+    const update = (y: number) => setState(y < limit ? "clear" : "solid");
+    const current = () => Math.max(readScroll().y, window.scrollY);
     const remeasure = () => {
-      limit = filmEnd(header);
-      update(Math.max(readScroll().y, window.scrollY));
+      limit = filmEnd(header) ?? clearUntil;
+      update(current());
     };
+    const onNative = () => update(current());
     const stopMeasure = measure(document.body, remeasure);
     addEventListener("resize", remeasure, { passive: true });
+    addEventListener("scroll", onNative, { passive: true });
     remeasure();
     const stopScroll = onScroll(update);
     return () => {
       stopMeasure();
       removeEventListener("resize", remeasure);
+      removeEventListener("scroll", onNative);
       stopScroll();
     };
   }, [headerRef, pathname]);
@@ -94,24 +108,22 @@ export function HeaderBar({
   locale,
   home,
   items,
-  logo,
+  brand,
   siteName,
-  contact,
+  booking,
   names,
   labels,
-  phones,
-  emails,
+  contact,
 }: {
   locale: Locale;
   home: string;
   items: HeaderLink[];
-  logo: ReactNode;
+  brand: ReactNode;
   siteName: string;
-  contact: { href: string; label: string } | null;
+  booking: { href: string; label: string };
   names: Record<Locale, string>;
   labels: Labels;
-  phones: string[];
-  emails: string[];
+  contact: HeaderContact;
 }) {
   const pathname = usePathname();
   const headerRef = useRef<HTMLElement>(null);
@@ -125,19 +137,21 @@ export function HeaderBar({
     menuButtonRef.current?.focus();
   }, []);
 
-  const brand = logo ?? <span className="text-h4 font-semibold">{siteName}</span>;
-
   return (
     <header
       ref={headerRef}
       data-site-header=""
       data-state={open ? "solid" : state}
+      data-menu={open ? "open" : undefined}
       style={{ viewTransitionName: "site-header" } as CSSProperties}
-      className="site-header h-header fixed inset-x-0 top-0 z-50 text-white"
+      className="site-header h-header fixed inset-x-0 top-0 z-50"
     >
       <div aria-hidden="true" className="site-header-scrim" />
       <div aria-hidden="true" className="site-header-bg" />
-      <div data-header-row="" className="relative container-page flex h-full items-center gap-6">
+      <div
+        data-header-row=""
+        className="relative container-page grid h-full grid-cols-[1fr_auto] items-center gap-4 xl:grid-cols-[1fr_auto_1fr]"
+      >
         <Link
           href={home}
           onClick={(event) => {
@@ -154,11 +168,11 @@ export function HeaderBar({
             }
           }}
           aria-label={`${siteName}: ${labels.home}`}
-          className="inline-flex min-h-11 shrink-0 items-center"
+          className="inline-flex min-h-11 items-center justify-self-start"
         >
           {brand}
         </Link>
-        <nav aria-label={labels.navigation} className="mx-auto hidden xl:block">
+        <nav aria-label={labels.navigation} className="hidden xl:block">
           <ul className="flex items-center gap-1">
             {items.map((item) => {
               const current = isCurrent(pathname, item.href);
@@ -167,10 +181,7 @@ export function HeaderBar({
                   <Link
                     href={item.href}
                     aria-current={current ? "page" : undefined}
-                    className={cx(
-                      "inline-flex min-h-11 items-center px-3 text-small font-medium transition-colors duration-200 ease-standard hover:text-accent",
-                      current ? "text-accent" : "text-white",
-                    )}
+                    className="header-link text-label inline-flex min-h-11 items-center px-3.5 uppercase"
                   >
                     {item.label}
                   </Link>
@@ -179,17 +190,15 @@ export function HeaderBar({
             })}
           </ul>
         </nav>
-        <div className="ml-auto flex shrink-0 items-center gap-2 xl:ml-0">
+        <div className="flex items-center gap-1.5 justify-self-end sm:gap-2">
           <LanguageMenu locale={locale} label={labels.language} names={names} />
-          {contact ? (
-            <Link
-              href={contact.href}
-              className={cx(button({ variant: "accent" }), "min-h-11 max-md:hidden")}
-            >
-              {contact.label}
-              <ArrowRightIcon size={20} className={buttonArrow} />
-            </Link>
-          ) : null}
+          <Link
+            href={booking.href}
+            className={cx(button({ variant: "filled", size: "sm" }), "header-cta max-lg:hidden")}
+          >
+            {booking.label}
+            <ArrowRightIcon size={16} className={buttonArrow} />
+          </Link>
           <button
             ref={menuButtonRef}
             type="button"
@@ -197,22 +206,21 @@ export function HeaderBar({
             aria-controls="site-menu"
             aria-label={open ? labels.closeMenu : labels.openMenu}
             onClick={() => setOpenPath(open ? null : pathname)}
-            className="inline-flex size-11 items-center justify-center rounded-full border border-white/40 transition-colors duration-200 ease-standard hover:border-white xl:hidden"
+            className={cx(roundButton({ tone: "ink" }), "header-menu-button")}
           >
-            {open ? <CloseIcon size={24} /> : <MenuIcon size={24} />}
+            {open ? <CloseIcon size={20} /> : <MenuLines />}
           </button>
         </div>
       </div>
       {open ? (
-        <MobileMenu
+        <SiteMenu
           locale={locale}
           items={items}
           pathname={pathname}
-          contact={contact}
+          booking={booking}
           names={names}
           labels={labels}
-          phones={phones}
-          emails={emails}
+          contact={contact}
           onClose={close}
         />
       ) : null}
@@ -220,25 +228,41 @@ export function HeaderBar({
   );
 }
 
-function MobileMenu({
+function MenuLines() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M3 6.5h14M7 10h10M3 13.5h14" />
+    </svg>
+  );
+}
+
+function SiteMenu({
   locale,
   items,
   pathname,
-  contact,
+  booking,
   names,
   labels,
-  phones,
-  emails,
+  contact,
   onClose,
 }: {
   locale: Locale;
   items: HeaderLink[];
   pathname: string;
-  contact: { href: string; label: string } | null;
+  booking: { href: string; label: string };
   names: Record<Locale, string>;
   labels: Labels;
-  phones: string[];
-  emails: string[];
+  contact: HeaderContact;
   onClose: () => void;
 }) {
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -278,66 +302,79 @@ function MobileMenu({
       ref={sheetRef}
       id="site-menu"
       data-lenis-prevent=""
-      className="surface-dark top-header fixed inset-x-0 bottom-0 overflow-y-auto overscroll-contain xl:hidden"
+      className="site-menu top-header fixed inset-x-0 bottom-0 overflow-y-auto overscroll-contain"
     >
-      <div className="container-page flex min-h-full flex-col gap-12 py-8">
-        <nav aria-label={labels.navigation}>
-          <ul className="flex flex-col">
+      <div className="gap-x-column relative container-page grid min-h-full gap-y-10 pt-6 pb-8 lg:grid-cols-12 lg:pt-12 lg:pb-14">
+        <nav aria-label={labels.navigation} className="lg:col-span-7">
+          <ol className="flex flex-col">
             {items.map((item, index) => {
               const current = isCurrent(pathname, item.href);
               return (
                 <li
                   key={item.id}
-                  className="animate-rise border-b border-white/15"
-                  style={{ animationDelay: `${Math.min(index, 4) * 120}ms` }}
+                  className="animate-rise border-ink/10 border-b"
+                  style={{ animationDelay: `${Math.min(index, 5) * 70}ms` }}
                 >
                   <Link
                     href={item.href}
                     aria-current={current ? "page" : undefined}
                     onClick={onClose}
-                    className={cx(
-                      "flex min-h-16 items-center justify-between gap-4 py-3 text-h3",
-                      current ? "text-accent" : "text-white",
-                    )}
+                    className="site-menu-link group/menu flex min-h-16 items-center gap-4 py-3 sm:gap-6 lg:min-h-20"
                   >
-                    {item.label}
-                    <ArrowRightIcon size={24} />
+                    <span className="tabular text-micro text-ink-muted w-7">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span className="font-display text-h3">{item.label}</span>
+                    <ArrowRightIcon
+                      size={24}
+                      className="ml-auto shrink-0 transition-transform duration-200 ease-standard group-hover/menu:translate-x-1"
+                    />
                   </Link>
                 </li>
               );
             })}
-          </ul>
+          </ol>
         </nav>
-        <div className="mt-auto flex flex-col gap-8">
+        <div className="flex flex-col gap-8 lg:col-span-4 lg:col-start-9 lg:justify-end">
+          <div className="flex flex-col gap-1 text-small">
+            <p className="text-label text-ink-muted uppercase">{labels.contact}</p>
+            {contact.address ? (
+              <p className="mt-2 inline-flex items-start gap-3">
+                <LocationIcon size={20} className="text-caramel-ink mt-0.5 shrink-0" />
+                {contact.address}
+              </p>
+            ) : null}
+            {contact.phones.map((phone) => (
+              <a
+                key={phone}
+                href={telHref(phone)}
+                className="tabular inline-flex min-h-11 items-center gap-3"
+              >
+                <CallIcon size={20} className="text-caramel-ink shrink-0" />
+                {formatAzerbaijaniPhone(phone)}
+              </a>
+            ))}
+            {contact.instagram ? (
+              <a
+                href={contact.instagram}
+                target="_blank"
+                rel="noopener"
+                className="inline-flex min-h-11 items-center gap-3"
+              >
+                <InstagramIcon size={20} className="text-caramel-ink shrink-0" />
+                {labels.instagram}
+              </a>
+            ) : null}
+          </div>
           <LanguageList locale={locale} names={names} label={labels.language} />
-          <ul className="flex flex-col gap-1 text-small">
-            {phones.map((phone) => (
-              <li key={phone}>
-                <a href={telHref(phone)} className="inline-flex min-h-11 items-center gap-3">
-                  <CallIcon size={20} className="text-accent" />
-                  {formatAzerbaijaniPhone(phone)}
-                </a>
-              </li>
-            ))}
-            {emails.map((email) => (
-              <li key={email}>
-                <a href={mailtoHref(email)} className="inline-flex min-h-11 items-center gap-3">
-                  <MailIcon size={20} className="text-accent" />
-                  {email}
-                </a>
-              </li>
-            ))}
-          </ul>
-          {contact ? (
-            <Link
-              href={contact.href}
-              onClick={onClose}
-              className={cx(button({ variant: "accent" }), "w-full")}
-            >
-              {contact.label}
-              <ArrowRightIcon size={20} className={buttonArrow} />
-            </Link>
-          ) : null}
+          <Link
+            href={booking.href}
+            onClick={onClose}
+            className={cx(button({ variant: "filled", size: "lg" }), "w-full")}
+          >
+            {booking.label}
+            <ArrowRightIcon size={20} className={buttonArrow} />
+          </Link>
         </div>
       </div>
     </div>

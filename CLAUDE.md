@@ -139,9 +139,9 @@ checks.
 ## 3. Design
 
 - The visual system is documented in `docs/DESIGN.md` and the
-  `byismayilov-design` skill once they exist. Until then the site uses a plain
-  neutral black, white and grey placeholder theme; do not invent a look in a
-  feature pull request
+  `byismayilov-design` skill (`.claude/skills/byismayilov-design`); `/_kit`
+  renders every token, component and ornament on the dev server. Do not invent
+  a look in a feature pull request
 - Never invent a colour, font size, radius, shadow or duration; every value
   exists as a token in `app/globals.css` (`@theme`)
 - Fonts are self-hosted from `assets/fonts/` with `next/font/local`. Never
@@ -248,6 +248,9 @@ pnpm dev                        # http://localhost:3030/admin
 | `pnpm auth:owner`               | Creates or promotes an owner and prints a set-password link                               |
 | `pnpm storage:cors [origin]`    | Lets the browser upload to the bucket from the app origin                                 |
 | `pnpm hero:upload`              | Uploads a hero film frame sequence to the bucket and registers it                         |
+| `pnpm db:seed:local-media`      | Local only: real salon photos from `LOCAL_MEDIA_DIR` into gallery, master and covers      |
+| `pnpm ornaments:build`          | Regenerates `components/ornament/paths.ts` from `assets/ornaments/*.svg`                  |
+| `python scripts/fonts.py check` | Verifies Azerbaijani and Cyrillic coverage of the committed font files (fontTools)        |
 | `pnpm check:seo`                | `--base <url>`: crawls the built site; fails on SEO and GEO defects (see the launch list) |
 | `docker build -t byismayilov .` | Production image; `GET /api/health` answers 200                                           |
 

@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
   experimental: { globalNotFound: true },
   images: {
     formats: ["image/avif", "image/webp"],
+    qualities: [60, 75],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384, 480],
     localPatterns: [
       { pathname: "/**", search: "" },
       { pathname: "/media/**", search: "?crop=portrait" },
