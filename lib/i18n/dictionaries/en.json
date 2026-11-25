@@ -1,0 +1,167 @@
+{
+  "meta": {
+    "siteName": "byismayilov",
+    "description": "byismayilov beauty salon: services and prices, masters, our work and online booking.",
+    "homeTitle": "byismayilov: beauty salon"
+  },
+  "common": {
+    "skipToContent": "Skip to content",
+    "bookOnline": "Book online",
+    "language": "Language",
+    "more": "More",
+    "home": "Home",
+    "mainNavigation": "Main menu",
+    "allServices": "All services",
+    "breadcrumb": "Breadcrumb",
+    "previous": "Previous",
+    "next": "Next",
+    "contact": "Contact",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "hero": {
+    "headline": "Beauty salon",
+    "book": "Book online",
+    "services": "Services"
+  },
+  "contact": {
+    "title": "Contact",
+    "description": "Address, phone, WhatsApp and opening hours of the byismayilov salon.",
+    "intro": "Call us, message us on WhatsApp or book online.",
+    "phone": "Phone",
+    "email": "Email",
+    "address": "Address",
+    "hours": "Opening hours",
+    "map": "Map",
+    "openMap": "Open in maps",
+    "whatsapp": "Message us on WhatsApp",
+    "socials": "Social media",
+    "empty": "Contact details will be added soon."
+  },
+  "footer": {
+    "contacts": "Contact",
+    "followUs": "Follow us",
+    "rights": "All rights reserved.",
+    "navigation": "Navigation"
+  },
+  "home": {
+    "servicesTitle": "Services",
+    "mastersTitle": "Our masters",
+    "galleryTitle": "Our work",
+    "reviewsTitle": "Reviews",
+    "bookingTitle": "Book online",
+    "bookingBody": "Choose a service and a time that suits you, and the salon will call you to confirm.",
+    "postsTitle": "Blog",
+    "contactTitle": "Contact"
+  },
+  "services": {
+    "title": "Services",
+    "description": "Services and prices at the byismayilov salon.",
+    "intro": "Every service by category, with its price and duration.",
+    "empty": "Services will be added soon.",
+    "other": "Other services",
+    "price": "Price",
+    "duration": "Duration",
+    "priceFrom": "from {amount} AZN",
+    "priceExact": "{amount} AZN",
+    "priceOnRequest": "On request",
+    "minutes": "{count} min",
+    "book": "Book now",
+    "gallery": "Photos",
+    "categories": "Category",
+    "masters": "Masters for this service",
+    "detailDescription": "{name} at the byismayilov salon. Price, duration and online booking."
+  },
+  "masters": {
+    "title": "Masters",
+    "description": "The masters of the byismayilov salon and the services they do.",
+    "empty": "Information about our masters will be added soon.",
+    "services": "Services",
+    "instagram": "Instagram",
+    "book": "Book with this master"
+  },
+  "gallery": {
+    "title": "Our work",
+    "description": "Photos and videos of work done at the byismayilov salon.",
+    "empty": "Our work will be added soon.",
+    "all": "All",
+    "filter": "By category",
+    "before": "Before",
+    "after": "After"
+  },
+  "reviews": {
+    "title": "Reviews",
+    "rating": "Rating: {rating} / 5",
+    "source": "Source"
+  },
+  "blog": {
+    "title": "Blog",
+    "description": "Articles from the byismayilov salon: care, tips and news.",
+    "read": "Read",
+    "empty": "No articles yet.",
+    "related": "More articles",
+    "loadMore": "Load more",
+    "shown": "{shown} / {total} articles",
+    "emptyBody": "Articles will appear here as they are published.",
+    "back": "All articles",
+    "pageSuffix": "Page {page}"
+  },
+  "booking": {
+    "title": "Book online",
+    "description": "Book a service at the byismayilov salon online: choose the service, the master and a time that suits you.",
+    "intro": "Fill in the form and the salon will call you to confirm the time.",
+    "name": "Full name",
+    "phone": "Phone",
+    "phoneHint": "For example 050 123 45 67",
+    "services": "Services",
+    "servicesHint": "Choose one or more services.",
+    "noServices": "Services have not been added yet, describe your request in the message.",
+    "master": "Master",
+    "anyMaster": "No preference",
+    "date": "Preferred date",
+    "time": "Preferred time",
+    "timeAny": "No preference",
+    "timeMorning": "Morning",
+    "timeAfternoon": "Afternoon",
+    "timeEvening": "Evening",
+    "message": "Message",
+    "messagePlaceholder": "Any wishes or questions",
+    "submit": "Send",
+    "sending": "Sending",
+    "required": "required field",
+    "requiredNote": "Fields marked with * are required.",
+    "errorName": "Enter your name (at least 2 letters).",
+    "errorPhone": "Enter the number as 050 123 45 67 or +994 50 123 45 67.",
+    "errorDate": "Choose today or a later date.",
+    "errorServices": "You can choose up to 10 services.",
+    "errorTooLong": "The text is too long.",
+    "errorGeneric": "Sending failed. Try again a little later or call us.",
+    "errorRateLimit": "Too many bookings were sent in the last hour. Try again later or call us.",
+    "successTitle": "Your booking request is received",
+    "successBody": "Thank you. The salon will call you soon to confirm the time.",
+    "again": "New booking",
+    "honeypot": "Leave this field empty",
+    "formLabel": "Booking form",
+    "direct": "Call us directly"
+  },
+  "locales": {
+    "az": "Azərbaycanca",
+    "ru": "Русский",
+    "en": "English"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you are looking for has moved or was removed.",
+    "home": "Back to the home page",
+    "services": "Services"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "body": "The page could not be loaded. Try again a little later.",
+    "retry": "Try again",
+    "eyebrow": "Error"
+  },
+  "pages": {
+    "contents": "On this page"
+  }
+}

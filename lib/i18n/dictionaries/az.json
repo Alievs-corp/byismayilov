@@ -1,0 +1,167 @@
+{
+  "meta": {
+    "siteName": "byismayilov",
+    "description": "byismayilov gözəllik salonu: xidmətlər və qiymətlər, ustalar, işlərimiz və onlayn qeydiyyat.",
+    "homeTitle": "byismayilov: gözəllik salonu"
+  },
+  "common": {
+    "skipToContent": "Məzmuna keç",
+    "bookOnline": "Onlayn qeydiyyat",
+    "language": "Dil",
+    "more": "Ətraflı",
+    "home": "Ana səhifə",
+    "mainNavigation": "Əsas menyu",
+    "allServices": "Bütün xidmətlər",
+    "breadcrumb": "Naviqasiya yolu",
+    "previous": "Əvvəlki",
+    "next": "Növbəti",
+    "contact": "Əlaqə",
+    "openMenu": "Menyunu aç",
+    "closeMenu": "Menyunu bağla"
+  },
+  "hero": {
+    "headline": "Gözəllik salonu",
+    "book": "Onlayn qeydiyyat",
+    "services": "Xidmətlər"
+  },
+  "contact": {
+    "title": "Əlaqə",
+    "description": "byismayilov salonunun ünvanı, telefonu, WhatsApp və iş saatları.",
+    "intro": "Bizə zəng edin, WhatsApp ilə yazın və ya onlayn qeydiyyatdan keçin.",
+    "phone": "Telefon",
+    "email": "E-poçt",
+    "address": "Ünvan",
+    "hours": "İş saatları",
+    "map": "Xəritə",
+    "openMap": "Xəritədə aç",
+    "whatsapp": "WhatsApp ilə yazın",
+    "socials": "Sosial şəbəkələr",
+    "empty": "Əlaqə məlumatları tezliklə əlavə olunacaq."
+  },
+  "footer": {
+    "contacts": "Əlaqə",
+    "followUs": "Bizi izləyin",
+    "rights": "Bütün hüquqlar qorunur.",
+    "navigation": "Naviqasiya"
+  },
+  "home": {
+    "servicesTitle": "Xidmətlər",
+    "mastersTitle": "Ustalarımız",
+    "galleryTitle": "İşlərimiz",
+    "reviewsTitle": "Rəylər",
+    "bookingTitle": "Onlayn qeydiyyat",
+    "bookingBody": "Xidməti və sizə rahat vaxtı seçin, salon sizinlə əlaqə saxlayıb vaxtı təsdiqləsin.",
+    "postsTitle": "Bloq",
+    "contactTitle": "Əlaqə"
+  },
+  "services": {
+    "title": "Xidmətlər",
+    "description": "byismayilov salonunun xidmətləri və qiymətləri.",
+    "intro": "Bütün xidmətlər kateqoriyalar üzrə, qiymət və müddəti ilə.",
+    "empty": "Xidmətlər tezliklə əlavə olunacaq.",
+    "other": "Digər xidmətlər",
+    "price": "Qiymət",
+    "duration": "Müddət",
+    "priceFrom": "{amount} AZN-dən",
+    "priceExact": "{amount} AZN",
+    "priceOnRequest": "Razılaşma ilə",
+    "minutes": "{count} dəq",
+    "book": "Qeydiyyatdan keç",
+    "gallery": "Şəkillər",
+    "categories": "Kateqoriya",
+    "masters": "Bu xidməti edən ustalar",
+    "detailDescription": "{name}: byismayilov salonunda. Qiymət, müddət və onlayn qeydiyyat."
+  },
+  "masters": {
+    "title": "Ustalar",
+    "description": "byismayilov salonunun ustaları və onların xidmətləri.",
+    "empty": "Ustalar haqqında məlumat tezliklə əlavə olunacaq.",
+    "services": "Xidmətləri",
+    "instagram": "Instagram",
+    "book": "Bu ustaya yazıl"
+  },
+  "gallery": {
+    "title": "İşlərimiz",
+    "description": "byismayilov salonunda görülmüş işlərin şəkilləri və videoları.",
+    "empty": "İşlər tezliklə əlavə olunacaq.",
+    "all": "Hamısı",
+    "filter": "Kateqoriya üzrə",
+    "before": "Əvvəl",
+    "after": "Sonra"
+  },
+  "reviews": {
+    "title": "Rəylər",
+    "rating": "Qiymət: {rating} / 5",
+    "source": "Mənbə"
+  },
+  "blog": {
+    "title": "Bloq",
+    "description": "byismayilov salonunun yazıları: baxım, məsləhətlər və yeniliklər.",
+    "read": "Oxu",
+    "empty": "Hələ yazı yoxdur.",
+    "related": "Digər yazılar",
+    "loadMore": "Daha çox",
+    "shown": "{shown} / {total} yazı",
+    "emptyBody": "Yazılar dərc olunduqca burada görünəcək.",
+    "back": "Bütün yazılar",
+    "pageSuffix": "Səhifə {page}"
+  },
+  "booking": {
+    "title": "Onlayn qeydiyyat",
+    "description": "byismayilov salonunda xidmətə onlayn qeydiyyat: xidməti, ustanı və rahat vaxtı seçin.",
+    "intro": "Formu doldurun, salon sizinlə əlaqə saxlayıb vaxtı təsdiqləsin.",
+    "name": "Ad, soyad",
+    "phone": "Telefon",
+    "phoneHint": "Məsələn 050 123 45 67",
+    "services": "Xidmətlər",
+    "servicesHint": "Bir və ya bir neçə xidmət seçin.",
+    "noServices": "Xidmətlər hələ əlavə olunmayıb, istəyinizi mesajda yazın.",
+    "master": "Usta",
+    "anyMaster": "Fərq etməz",
+    "date": "Arzu olunan tarix",
+    "time": "Arzu olunan vaxt",
+    "timeAny": "Fərq etməz",
+    "timeMorning": "Səhər",
+    "timeAfternoon": "Günorta",
+    "timeEvening": "Axşam",
+    "message": "Mesaj",
+    "messagePlaceholder": "Əlavə istəkləriniz və suallarınız",
+    "submit": "Göndər",
+    "sending": "Göndərilir",
+    "required": "vacib sahə",
+    "requiredNote": "* ilə işarələnmiş sahələr vacibdir.",
+    "errorName": "Adınızı yazın (ən azı 2 hərf).",
+    "errorPhone": "Nömrəni 050 123 45 67 və ya +994 50 123 45 67 şəklində yazın.",
+    "errorDate": "Bu gündən sonrakı bir tarix seçin.",
+    "errorServices": "Ən çox 10 xidmət seçmək olar.",
+    "errorTooLong": "Mətn çox uzundur.",
+    "errorGeneric": "Göndərmək alınmadı. Bir az sonra yenidən cəhd edin və ya bizə zəng edin.",
+    "errorRateLimit": "Son bir saatda çox qeydiyyat göndərilib. Bir az sonra yenidən cəhd edin və ya bizə zəng edin.",
+    "successTitle": "Qeydiyyatınız qəbul olundu",
+    "successBody": "Təşəkkür edirik. Salon tezliklə sizinlə əlaqə saxlayıb vaxtı təsdiqləyəcək.",
+    "again": "Yeni qeydiyyat",
+    "honeypot": "Bu sahəni boş saxlayın",
+    "formLabel": "Qeydiyyat forması",
+    "direct": "Birbaşa zəng edin"
+  },
+  "locales": {
+    "az": "Azərbaycanca",
+    "ru": "Русский",
+    "en": "English"
+  },
+  "notFound": {
+    "title": "Səhifə tapılmadı",
+    "body": "Axtardığınız səhifə köçürülüb və ya silinib.",
+    "home": "Ana səhifəyə qayıt",
+    "services": "Xidmətlər"
+  },
+  "error": {
+    "title": "Xəta baş verdi",
+    "body": "Səhifəni yükləmək alınmadı. Bir az sonra yenidən cəhd edin.",
+    "retry": "Yenidən cəhd et",
+    "eyebrow": "Xəta"
+  },
+  "pages": {
+    "contents": "Bu səhifədə"
+  }
+}
