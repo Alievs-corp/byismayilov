@@ -1154,3 +1154,14 @@
   content-visibility: auto;
   contain-intrinsic-size: auto 60rem;
 }
+
+.arch-portrait {
+  border-radius: 50% 50% var(--radius-card) var(--radius-card) / 40% 40% var(--radius-card)
+    var(--radius-card);
+}
+
+@media print {
+  .defer-render {
+    content-visibility: visible;
+  }
+}

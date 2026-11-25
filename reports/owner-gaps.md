@@ -2,6 +2,17 @@
 
 Facts the salon owner must supply. Nothing below is invented on the site; each item is hidden or shown as an admin-editable empty field until filled.
 
+## Services (`/xidmetler`, home, booking form, structured data)
+
+- The service list and its categories: nothing is published on Instagram, so the site has no services until they are entered in Admin, Services (local screenshots use `[placeholder]` demo services).
+- Price per service (exact, "from" or on request) and duration in minutes; the `Offer` price in structured data and the price range stay empty until then.
+- A cover photo per service, chosen by the owner from the salon's own work.
+
+## Home
+
+- The hero film (the salon floor plan to film); the designed placeholder hero shows until it exists.
+- Real client reviews with consent; the reviews section stays hidden until at least one exists.
+
 ## Contact (`/elaqe`, footer, structured data)
 
 - Working hours (Admin, Settings, working hours text, and the structured `openingHours` value): not published anywhere.

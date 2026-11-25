@@ -86,7 +86,9 @@ the base layer) or add `font-display`.
 - Radius: `xs` 2px, `sm` 6px, `md` 12px (inputs), `lg` 20px (menus), `card`
   20 to 28px fluid (cards, photos, bands), `pill` (buttons, chips). The hero
   photo uses an arch (fully round top), echoing the salon's arched windows and
-  mirrors.
+  mirrors. A 4:5 portrait arch with card radius at the bottom is
+  `.arch-portrait` (never `rounded-t-full` with a bottom radius: the browser
+  scales the bottom corners down to zero).
 - Shadows: `island` (small floating elements), `float` (dropdowns), `stack`.
   Cards have no shadow; depth comes from fills.
 
@@ -135,14 +137,14 @@ Assets: `assets/ornaments/*.svg` (line art, source for
 Placement (owner: "not exaggerated"), at most one per section and about five on
 the whole site:
 
-| Place                                              | Ornament                                                                     | Status     |
-| -------------------------------------------------- | ---------------------------------------------------------------------------- | ---------- |
-| Home services section head                         | `hair-strand`, caramel-ink, 96 to 140px                                      | Done       |
-| Home booking band                                  | `hair-wave` champagne + `glow-wide-dark` (the one ambient float)             | Done       |
-| Footer top edge, every page                        | `eucalyptus` mask, champagne at 38%                                          | Done       |
-| Empty states and 404                               | `blossom-spray`, caramel-ink                                                 | Done       |
-| `/qeydiyyat` side column, desktop only (>= 1024px) | `magnolia` + `glow-orb-light` behind the form card edge, never behind fields | Page agent |
-| `/ustalar` page head                               | `peony` through the `PageHeading` `ornament` slot, 120 to 160px              | Page agent |
+| Place                                              | Ornament                                                                      | Status |
+| -------------------------------------------------- | ----------------------------------------------------------------------------- | ------ |
+| Home services section head                         | `hair-strand`, caramel-ink, 96 to 140px                                       | Done   |
+| Home booking band                                  | `hair-wave` champagne + `glow-wide-dark` (the one ambient float)              | Done   |
+| Footer top edge, every page                        | `eucalyptus` mask, champagne at 38%                                           | Done   |
+| Empty states and 404                               | `blossom-spray`, caramel-ink                                                  | Done   |
+| `/qeydiyyat` side column, desktop only (>= 1024px) | `magnolia` with `glow-orb-light` (50%) centred behind it, never behind fields | Done   |
+| `/ustalar` page head                               | `peony` through the `PageHeading` `ornament` slot, 120 to 160px               | Done   |
 
 Never behind body text, prices or form fields, never in the admin, never
 repeated inside card grids, never more than one per section. `sparkle` and
@@ -158,8 +160,13 @@ repeated inside card grids, never more than one per section. `sparkle` and
 - Continuous motion: only the booking band glow floats (`--motion-ambient`
   22s, transform only) and it pauses off screen. Lenis smooth scroll and the
   hero film scrub stay as they are.
-- `prefers-reduced-motion: reduce`, no script or a short viewport: everything
-  renders in its final state, no float.
+- `prefers-reduced-motion: reduce`, no script, a short viewport or print:
+  everything renders in its final state, no float. Reveal states apply to
+  `screen` only, and `.defer-render` sections are visible when printing.
+- Full-page screenshots leave `.defer-render` sections and the sticky desktop
+  footer blank (the browser skips content far from the viewport). That is a
+  capture artifact, not what a visitor sees: scroll each section into view, or
+  inject `.defer-render{content-visibility:visible}` before a full-page capture.
 - Ornaments are absolutely positioned or sit in fixed size cells with an
   aspect ratio, so they never shift layout.
 

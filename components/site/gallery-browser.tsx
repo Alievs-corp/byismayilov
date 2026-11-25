@@ -46,20 +46,30 @@ function Cover({ image, sizes, eager }: { image: PublicImage; sizes: string; eag
   );
 }
 
+function columnTop(index: number, total: number) {
+  return [2, 3].some((columns) =>
+    Array.from({ length: columns }, (_, column) => Math.ceil((total * column) / columns)).includes(
+      index,
+    ),
+  );
+}
+
 function Tile({
   item,
   index,
+  total,
   labels,
   onOpen,
 }: {
   item: PublicGalleryItem;
   index: number;
+  total: number;
   labels: GalleryLabels;
   onOpen: (index: number) => void;
 }) {
   const cover = item.image ?? item.video?.poster ?? null;
   const name = item.caption ?? cover?.alt ?? labels.open;
-  const eager = index < 2;
+  const eager = columnTop(index, total);
   return (
     <li data-gallery-item="" className="group/card mb-3 break-inside-avoid sm:mb-4 lg:mb-5">
       <button
@@ -248,7 +258,14 @@ export function GalleryBrowser({
     <>
       <ul className="columns-2 gap-3 sm:gap-4 lg:columns-3 lg:gap-5">
         {items.map((entry, index) => (
-          <Tile key={entry.id} item={entry} index={index} labels={labels} onOpen={setCurrent} />
+          <Tile
+            key={entry.id}
+            item={entry}
+            index={index}
+            total={items.length}
+            labels={labels}
+            onOpen={setCurrent}
+          />
         ))}
       </ul>
       <dialog
