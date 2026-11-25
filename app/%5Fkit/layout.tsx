@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import type { ReactNode } from "react";
 
 import { PublicShell } from "@/components/site/public-shell";
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function KitLayout({ children }: { children: ReactNode }) {
+  await connection();
   const dict = await getDictionary(defaultLocale);
   return (
     <PublicShell locale={defaultLocale} dict={dict}>
