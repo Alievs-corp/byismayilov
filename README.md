@@ -1,5 +1,5 @@
 # byismayilov
 
-Website and admin panel for the byismayilov beauty salon in Baku: services and prices, masters, gallery and online booking.
+Website and admin panel for byismayilov, a beauty salon in Azerbaijan: services with prices, masters, gallery, blog and online booking requests.
 
-Work in progress.
+See `CLAUDE.md` for the stack, the workflow and the commands.
