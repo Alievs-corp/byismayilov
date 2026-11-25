@@ -69,7 +69,7 @@ async function routeLocale(request: NextRequest): Promise<NextResponse> {
   return NextResponse.rewrite(url, { request: { headers } });
 }
 
-const internalPrefixes = ["/admin", "/api", "/_next", "/media"];
+const internalPrefixes = ["/admin", "/api", "/_next", "/media", "/_kit"];
 
 function redirectTo(request: NextRequest, target: string, search: string, status: number) {
   const url = new URL(target.replace(/^[/\\]+/, "/"), request.nextUrl.origin);
@@ -100,7 +100,9 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   if (isUnder(pathname, "/admin") || isUnder(pathname, "/api/admin")) return guardAdmin(request);
   const rewritten = seoRewrite(pathname);
   if (rewritten) return NextResponse.rewrite(new URL(rewritten, request.url));
-  if (isUnder(pathname, "/api") || pathname.includes(".")) return NextResponse.next();
+  if (isUnder(pathname, "/api") || isUnder(pathname, "/_kit") || pathname.includes(".")) {
+    return NextResponse.next();
+  }
   return routeLocale(request);
 }
 
