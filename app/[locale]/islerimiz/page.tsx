@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { ChipNav } from "@/components/site/chip-nav";
 import { EmptyState } from "@/components/site/empty-state";
 import { GalleryBrowser } from "@/components/site/gallery-browser";
+import { Ornament } from "@/components/ornament/ornament";
 import { PageHeading } from "@/components/site/page-heading";
 import { localePath } from "@/lib/i18n/config";
 import { getRequestDictionary } from "@/lib/i18n/server";
@@ -46,7 +47,14 @@ export default async function GalleryPage({ searchParams }: PageProps<"/[locale]
       <PageHeading
         title={dict.gallery.title}
         lead={<p>{dict.gallery.description}</p>}
-        breadcrumbLabel={dict.common.breadcrumb}
+        ornament={
+          <Ornament
+            name="hair-strand"
+            width={{ base: 120, lg: 150 }}
+            ink={1.2}
+            className="text-caramel-ink"
+          />
+        }
         breadcrumbs={[
           { label: dict.common.home, href: localePath(locale) },
           { label: dict.gallery.title, href: path },

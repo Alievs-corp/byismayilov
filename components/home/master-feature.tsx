@@ -28,7 +28,10 @@ export function MasterFeature({
   return (
     <div className="gap-x-column grid items-center gap-y-10 md:grid-cols-12">
       <div className="md:col-span-5 lg:col-span-5">
-        <div className="master-photo rounded-card bg-champagne relative aspect-[4/5] overflow-clip">
+        <div
+          data-reveal="clip"
+          className="master-photo rounded-card bg-champagne relative aspect-[4/5] overflow-clip"
+        >
           {master.photo ? (
             <Image
               src={master.photo.src}
@@ -42,7 +45,10 @@ export function MasterFeature({
           ) : null}
         </div>
       </div>
-      <div className="flex flex-col gap-6 md:col-span-7 lg:col-span-6 lg:col-start-7">
+      <div
+        data-reveal=""
+        className="flex flex-col gap-6 md:col-span-7 lg:col-span-6 lg:col-start-7"
+      >
         <p className="text-label text-caramel-ink uppercase">{title}</p>
         <h2 id={id} className="text-safe text-h1">
           {master.name}

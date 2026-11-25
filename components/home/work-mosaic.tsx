@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 
 import type { PublicGalleryItem } from "@/lib/public/gallery";
 
@@ -13,7 +14,11 @@ export function WorkMosaic({ items }: { items: PublicGalleryItem[] }) {
         if (!image) return null;
         return (
           <li key={item.id} data-gallery-item="" className={`work-tile ${tiles[index]}`}>
-            <figure className="rounded-card bg-soft relative h-full overflow-clip">
+            <figure
+              data-reveal="clip"
+              style={{ "--reveal-delay": `${index * 100}ms` } as CSSProperties}
+              className="rounded-card bg-soft relative h-full overflow-clip"
+            >
               <Image
                 src={image.src}
                 alt={image.alt}

@@ -41,7 +41,6 @@ export default async function MastersPage() {
       <PageHeading
         title={dict.masters.title}
         lead={<p>{dict.masters.description}</p>}
-        breadcrumbLabel={dict.common.breadcrumb}
         ornament={
           <Ornament
             name="peony"

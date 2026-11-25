@@ -3,12 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
+import type { CSSProperties } from "react";
 
 import { ArrowRightIcon } from "@/components/icons/iconsax";
 import { ServiceRail } from "@/components/home/service-rail";
 import { FactBlockView } from "@/components/seo/fact-block";
 import { button, buttonArrow, card, textLink } from "@/components/site/button";
-import { Breadcrumbs } from "@/components/site/breadcrumbs";
+import { BreadcrumbData } from "@/components/site/breadcrumbs";
 import { FitHeading } from "@/components/site/fit-heading";
 import { JsonLdScript } from "@/components/site/json-ld";
 import { RichText } from "@/components/site/rich-text";
@@ -99,17 +100,16 @@ export default async function ServicePage({ params }: PageProps<"/[locale]/xidme
     <>
       <article>
         <header className="page-heading">
-          <div className="relative container-page pt-6 pb-12 lg:pb-20">
-            <Breadcrumbs
-              label={dict.common.breadcrumb}
-              items={[
-                { label: dict.common.home, href: localePath(locale) },
-                { label: dict.services.title, href: servicesPath },
-                ...(category ? [{ label: category.name, href: category.href }] : []),
-                { label: service.name, href: service.href },
-              ]}
-            />
-            <div className="gap-x-column mt-10 grid items-center gap-y-10 lg:mt-16 lg:grid-cols-12">
+          <BreadcrumbData
+            items={[
+              { label: dict.common.home, href: localePath(locale) },
+              { label: dict.services.title, href: servicesPath },
+              ...(category ? [{ label: category.name, href: category.href }] : []),
+              { label: service.name, href: service.href },
+            ]}
+          />
+          <div className="relative container-page pt-10 pb-12 lg:pt-14 lg:pb-20">
+            <div className="gap-x-column grid items-center gap-y-10 lg:grid-cols-12">
               <div className="min-w-0 lg:col-span-7">
                 {category ? (
                   <p className="text-label text-caramel-ink mb-5 uppercase">{category.name}</p>
@@ -148,7 +148,7 @@ export default async function ServicePage({ params }: PageProps<"/[locale]/xidme
                 </div>
               </div>
               <div className="lg:col-span-5">
-                <div className="bg-champagne rounded-arch relative mx-auto aspect-[4/5] w-full max-w-md overflow-clip lg:max-w-none">
+                <div className="bg-champagne rounded-arch arch-settle relative mx-auto aspect-[4/5] w-full max-w-md overflow-clip lg:max-w-none">
                   {cover ? (
                     <Image
                       src={cover.src}
@@ -186,9 +186,13 @@ export default async function ServicePage({ params }: PageProps<"/[locale]/xidme
                 <h2 id="service-masters" className="text-h3">
                   {dict.services.masters}
                 </h2>
-                <ul className="mt-6 flex flex-col gap-3">
+                <ul data-reveal-group="" className="mt-6 flex flex-col gap-3">
                   {service.masters.map((master) => (
-                    <li key={master.id} className={`${card({ tone: "soft" })} group/card`}>
+                    <li
+                      key={master.id}
+                      data-reveal=""
+                      className={`${card({ tone: "soft" })} group/card`}
+                    >
                       <div className="flex items-center gap-4 p-4">
                         {master.photo ? (
                           <Image
@@ -232,6 +236,8 @@ export default async function ServicePage({ params }: PageProps<"/[locale]/xidme
               {gallery.map((image, index) => (
                 <li
                   key={image.src}
+                  data-reveal="clip"
+                  style={{ "--reveal-delay": `${Math.min(index, 3) * 100}ms` } as CSSProperties}
                   className={
                     index === 0
                       ? "bg-soft rounded-card relative col-span-2 aspect-[4/5] overflow-clip lg:col-span-6 lg:aspect-[5/4]"

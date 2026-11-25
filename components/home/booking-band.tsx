@@ -19,7 +19,7 @@ export function BookingBand({
   secondary?: { label: string; href: string } | null;
 }) {
   return (
-    <div className="booking-band surface-dark">
+    <div data-reveal="scale" className="booking-band surface-dark">
       <Glow name="wide-dark" float className="booking-band-glow" />
       <Ornament
         name="hair-wave"

@@ -114,7 +114,6 @@ export default async function KitPage() {
         eyebrow="byismayilov"
         lead={<p>Tokens, type, components and ornaments of the public site. Dev only.</p>}
         breadcrumbs={[{ label: "Kit", href: "/_kit" }]}
-        breadcrumbLabel={dict.common.breadcrumb}
         ornament={<Ornament name="hair-wave" width={{ base: 200, lg: 300 }} />}
       />
       <div className="container-page pb-section">

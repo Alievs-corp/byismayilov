@@ -7,6 +7,7 @@ import { button, buttonArrow } from "@/components/site/button";
 import { ChipNav } from "@/components/site/chip-nav";
 import { EmptyState } from "@/components/site/empty-state";
 import { JsonLdScript } from "@/components/site/json-ld";
+import { Ornament } from "@/components/ornament/ornament";
 import { PageHeading } from "@/components/site/page-heading";
 import { RichText } from "@/components/site/rich-text";
 import { ServiceRows } from "@/components/site/service-list";
@@ -166,7 +167,14 @@ export default async function ServicesPage() {
       <PageHeading
         title={dict.services.title}
         lead={<p>{dict.services.intro}</p>}
-        breadcrumbLabel={dict.common.breadcrumb}
+        ornament={
+          <Ornament
+            name="hair-wave"
+            width={{ base: 180, lg: 240 }}
+            ink={1.2}
+            className="text-caramel-ink"
+          />
+        }
         breadcrumbs={[
           { label: dict.common.home, href: localePath(locale) },
           { label: dict.services.title, href: path },

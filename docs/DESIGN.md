@@ -94,29 +94,29 @@ the base layer) or add `font-display`.
 
 ## 4. Components
 
-| Component                    | Where                                | Notes                                                                                                                                                                                                                                                                                          |
-| ---------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `button()`                   | `components/site/button.ts`          | `filled` black pill (primary on light), `light` white pill with arrow (primary on dark or colour), `outline`, `ghost` (on dark); sizes `sm`, `md`, `lg`. Labels uppercase `text-button`. Primary buttons carry `ArrowRightIcon` with `buttonArrow`.                                            |
-| `textLink()`                 | same                                 | Secondary action: uppercase underlined text, `ink` or `light` tone.                                                                                                                                                                                                                            |
-| `arrowControl()`             | same                                 | Slider controls: `soft` pill (previous) and `ink` pill (next). `RailControls` wires them to a `.rail`.                                                                                                                                                                                         |
-| `roundButton()`              | same                                 | 48px circle; the header menu button is `ink`.                                                                                                                                                                                                                                                  |
-| `chip()`                     | same                                 | `white` (price pill on photos), `soft`, `ink`, `outline` (service links).                                                                                                                                                                                                                      |
-| `.glass-chip`                | `app/site.css`                       | Frosted, tilted chip on the hero field only, max two, true claims only (the master's own tagline).                                                                                                                                                                                             |
-| `card()`                     | same                                 | `soft` default, `blush` for exactly one card per row, `cream`, `white`.                                                                                                                                                                                                                        |
-| `Wordmark`, `BrandMark`      | `components/site/wordmark.tsx`       | Name in the display serif with the eight ray sparkle. `SiteLogo` prefers an uploaded logo.                                                                                                                                                                                                     |
-| `SectionHead`                | `components/site/section-head.tsx`   | Big serif title left (two lines), optional ornament, short paragraph in the middle, controls or link right.                                                                                                                                                                                    |
-| `ServiceCard`, `ServiceRail` | `components/home/service-rail.tsx`   | Photo 4:5, white price pill top left, serif name, duration, round arrow.                                                                                                                                                                                                                       |
-| `MasterFeature`              | `components/home/master-feature.tsx` | Photo left, label, name in `text-h1`, role in serif, bio, service chips, booking and Instagram.                                                                                                                                                                                                |
-| `WorkMosaic`                 | `components/home/work-mosaic.tsx`    | Five tiles in an asymmetric grid; never a uniform grid.                                                                                                                                                                                                                                        |
-| `ReviewRail`                 | `components/home/review-rail.tsx`    | Rendered only when real reviews exist.                                                                                                                                                                                                                                                         |
-| `BookingBand`                | `components/home/booking-band.tsx`   | Dark rounded band, glow and hair-wave ornament.                                                                                                                                                                                                                                                |
-| `ContactBlock`               | `components/home/contact-block.tsx`  | Address in serif, contact rows, map embed or a map card that opens Google Maps.                                                                                                                                                                                                                |
-| `PageHeading`                | `components/site/page-heading.tsx`   | Cream head with breadcrumbs, fitted serif title, lead, optional `ornament` slot (desktop only).                                                                                                                                                                                                |
-| Form controls                | `components/site/form-styles.ts`     | `fieldLabel`, `fieldControl`, `selectControl`, `textareaControl`, `choiceChip` + `choiceInput` (pill checkboxes). Focus ring is a honey halo.                                                                                                                                                  |
-| `EmptyState`                 | `components/site/empty-state.tsx`    | Cream card with the blossom ornament, serif message, primary button and text links.                                                                                                                                                                                                            |
-| `NotFoundView`               | `components/site/not-found-view.tsx` | Blossom, champagne 404 numerals, serif title.                                                                                                                                                                                                                                                  |
-| Header and menu              | `components/site/header-bar.tsx`     | Wordmark left, centred uppercase nav (xl+), language, booking pill (lg+), black round menu button. Clear over the hero, solid cream with blur after 24px of scroll (or after the film). Menu: cream sheet with numbered serif links, contacts, language pills and a full width booking button. |
-| Footer                       | `components/site/site-footer.tsx`    | Dark, espresso glow, tagline and booking pill, contacts, navigation, socials, eucalyptus edge, champagne wordmark.                                                                                                                                                                             |
+| Component                    | Where                                | Notes                                                                                                                                                                                                                                                                                                                                        |
+| ---------------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `button()`                   | `components/site/button.ts`          | `filled` black pill (primary on light), `light` white pill with arrow (primary on dark or colour), `outline`, `ghost` (on dark); sizes `sm`, `md`, `lg`. Labels uppercase `text-button`. Primary buttons carry `ArrowRightIcon` with `buttonArrow`.                                                                                          |
+| `textLink()`                 | same                                 | Secondary action: uppercase underlined text, `ink` or `light` tone.                                                                                                                                                                                                                                                                          |
+| `arrowControl()`             | same                                 | Slider controls: `soft` pill (previous) and `ink` pill (next). `RailControls` wires them to a `.rail`.                                                                                                                                                                                                                                       |
+| `roundButton()`              | same                                 | 48px circle; the header menu button is `ink`.                                                                                                                                                                                                                                                                                                |
+| `chip()`                     | same                                 | `white` (price pill on photos), `soft`, `ink`, `outline` (service links).                                                                                                                                                                                                                                                                    |
+| `.glass-chip`                | `app/site.css`                       | Frosted, tilted chip on the hero field only, max two, true claims only (the master's own tagline).                                                                                                                                                                                                                                           |
+| `card()`                     | same                                 | `soft` default, `blush` for exactly one card per row, `cream`, `white`.                                                                                                                                                                                                                                                                      |
+| `Wordmark`, `BrandMark`      | `components/site/wordmark.tsx`       | Name in the display serif with the eight ray sparkle. `SiteLogo` prefers an uploaded logo.                                                                                                                                                                                                                                                   |
+| `SectionHead`                | `components/site/section-head.tsx`   | Big serif title left (two lines), optional ornament, short paragraph in the middle, controls or link right.                                                                                                                                                                                                                                  |
+| `ServiceCard`, `ServiceRail` | `components/home/service-rail.tsx`   | Photo 4:5, white price pill top left, serif name, duration, round arrow.                                                                                                                                                                                                                                                                     |
+| `MasterFeature`              | `components/home/master-feature.tsx` | Photo left, label, name in `text-h1`, role in serif, bio, service chips, booking and Instagram.                                                                                                                                                                                                                                              |
+| `WorkMosaic`                 | `components/home/work-mosaic.tsx`    | Five tiles in an asymmetric grid; never a uniform grid.                                                                                                                                                                                                                                                                                      |
+| `ReviewRail`                 | `components/home/review-rail.tsx`    | Rendered only when real reviews exist.                                                                                                                                                                                                                                                                                                       |
+| `BookingBand`                | `components/home/booking-band.tsx`   | Dark rounded band, glow and hair-wave ornament.                                                                                                                                                                                                                                                                                              |
+| `ContactBlock`               | `components/home/contact-block.tsx`  | Address in serif, contact rows, map embed or a map card that opens Google Maps.                                                                                                                                                                                                                                                              |
+| `PageHeading`                | `components/site/page-heading.tsx`   | Cream head with fitted serif title, lead, optional `ornament` slot (desktop only). No visible breadcrumb trail; `BreadcrumbList` JSON-LD only.                                                                                                                                                                                               |
+| Form controls                | `components/site/form-styles.ts`     | `fieldLabel`, `fieldControl`, `selectControl`, `textareaControl`, `choiceChip` + `choiceInput` (pill checkboxes). Focus ring is a honey halo.                                                                                                                                                                                                |
+| `EmptyState`                 | `components/site/empty-state.tsx`    | Cream card with the blossom ornament, serif message, primary button and text links.                                                                                                                                                                                                                                                          |
+| `NotFoundView`               | `components/site/not-found-view.tsx` | Blossom, champagne 404 numerals, serif title.                                                                                                                                                                                                                                                                                                |
+| Header and menu              | `components/site/header-bar.tsx`     | Wordmark left, centred uppercase nav (xl+), language, booking pill (lg+), black round menu button below xl only (never next to the visible nav). Clear over the hero, solid cream with blur after 24px of scroll (or after the film). Menu: cream sheet with numbered serif links, contacts, language pills and a full width booking button. |
+| Footer                       | `components/site/site-footer.tsx`    | Dark, espresso glow, tagline and booking pill, contacts, navigation, socials, eucalyptus edge, champagne wordmark.                                                                                                                                                                                                                           |
 
 ## 5. Ornaments
 
@@ -134,8 +134,8 @@ Assets: `assets/ornaments/*.svg` (line art, source for
 - `<MaskOrnament name="eucalyptus" />` for the filled footer sprig.
 - `<Glow name float? />` for the toned light blobs.
 
-Placement (owner: "not exaggerated"), at most one per section and about five on
-the whole site:
+Placement (owner: "a little more, but not exaggerated"), at most one per section
+and ten places on the whole site:
 
 | Place                                              | Ornament                                                                      | Status |
 | -------------------------------------------------- | ----------------------------------------------------------------------------- | ------ |
@@ -145,6 +145,10 @@ the whole site:
 | Empty states and 404                               | `blossom-spray`, caramel-ink                                                  | Done   |
 | `/qeydiyyat` side column, desktop only (>= 1024px) | `magnolia` with `glow-orb-light` (50%) centred behind it, never behind fields | Done   |
 | `/ustalar` page head                               | `peony` through the `PageHeading` `ornament` slot, 120 to 160px               | Done   |
+| `/xidmetler` page head                             | `hair-wave`, 180 to 240px, desktop only                                       | Done   |
+| `/islerimiz` page head                             | `hair-strand`, 120 to 150px, desktop only                                     | Done   |
+| `/elaqe` page head                                 | `eucalyptus-line`, 150 to 190px, desktop only                                 | Done   |
+| Blog post end                                      | `blossom-spray`, 120 to 150px, centred after the article body                 | Done   |
 
 Never behind body text, prices or form fields, never in the admin, never
 repeated inside card grids, never more than one per section. `sparkle` and
@@ -152,14 +156,40 @@ repeated inside card grids, never more than one per section. `sparkle` and
 
 ## 6. Motion
 
-- Reveal: one shared IntersectionObserver (`lib/motion/reveal.ts`) sets
-  `data-revealed` once. `[data-reveal]` fades and rises, ornaments use
-  `data-ornament`: `draw` (stroke dash, `--motion-ornament` 1.4s), `rise`
-  (fade and 14px rise, 1.2s), `twinkle` (scale and rotate, 0.9s), `glow` (fade).
-  Easing `--ease-out-soft`.
+One-shot reveals run once when an element enters the viewport (one shared
+IntersectionObserver in `lib/motion/reveal.ts`, which sets `data-revealed`).
+Everything moves on `transform`, `scale` or `opacity` only, so it stays on the
+compositor. Vocabulary, so sections do not all fade the same way:
+
+| Attribute                         | Motion                                                                       | Duration                | Used on                                                                          |
+| --------------------------------- | ---------------------------------------------------------------------------- | ----------------------- | -------------------------------------------------------------------------------- |
+| `data-reveal` (empty)             | fade and 1.5rem rise                                                         | `--motion-reveal` 0.8s  | section head paragraph, master text, contact card, blog list                     |
+| `data-reveal="side"`              | fade and 2.5rem slide from the right                                         | 0.8s                    | rail cards (services, reviews), staggered                                        |
+| `data-reveal="scale"`             | fade and scale from 0.94                                                     | 0.8s                    | booking band, map cards                                                          |
+| `data-reveal="clip"`              | a curtain in the surface colour lifts off the photo, image settles 1.12 to 1 | `--motion-curtain` 1.1s | photos: home master, work mosaic, master page, gallery tiles, service gallery    |
+| `data-reveal="rule"`              | row rises 0.75rem while its bottom hairline draws from the left              | 0.9s                    | service rows on `/xidmetler` (the hairline is the row's `::after`, not a border) |
+| `data-line-reveal` (`LineReveal`) | words rise line by line out of a clip                                        | 0.8s, 120ms per line    | every `SectionHead` title, related posts                                         |
+| `data-wordmark`                   | letters rise                                                                 | 0.9s                    | footer wordmark                                                                  |
+| `data-ornament`                   | `draw`, `rise`, `twinkle`, `glow` (see above)                                | 0.9 to 1.4s             | ornaments                                                                        |
+| `.arch-settle`                    | CSS on load: the arch photo settles from 1.08 to 1                           | 1.1s                    | home hero arch, service hero arch (above the fold, no JavaScript needed)         |
+
+- Stagger: put `data-reveal-group` on the parent; children get 120ms steps
+  (max four), or set `--reveal-delay` inline for a grid.
+- Easing is `--ease-out-expo` (`--ease-out-soft` for lines and arches).
+- Never hidden for good: an element already in the viewport (or above it) when
+  the page starts is shown at once, without animation, so the first screen
+  and the LCP never wait for JavaScript. Elements scrolled past by an anchor
+  jump are revealed; elements stuck in the bottom band of a short page are
+  revealed at the page end; elements added later (filters, pagination, client
+  renders) are picked up by a MutationObserver. Hidden states only apply with
+  `:root[data-motion]` (set after hydration) on `screen`.
 - Continuous motion: only the booking band glow floats (`--motion-ambient`
-  22s, transform only) and it pauses off screen. Lenis smooth scroll and the
-  hero film scrub stay as they are.
+  22s, transform only) and it pauses off screen.
+- Smooth scroll: Lenis (about 5 KB gzip, loaded after hydration as its own
+  chunk) on fine pointers without reduced motion; touch and reduced motion use
+  native scrolling. It honours `scroll-margin-top` on anchors; the menu sheet
+  and the lightbox stop it through `lockScroll()` and carry
+  `data-lenis-prevent`.
 - `prefers-reduced-motion: reduce`, no script, a short viewport or print:
   everything renders in its final state, no float. Reveal states apply to
   `screen` only, and `.defer-render` sections are visible when printing.

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { LineReveal } from "@/components/motion/text";
 import { cx } from "@/lib/cx";
 
 export function SectionHead({
@@ -28,9 +29,7 @@ export function SectionHead({
       <div className="flex items-end gap-5 md:col-span-7 lg:col-span-6 xl:col-span-5">
         <div className="min-w-0">
           {eyebrow ? <p className="text-label text-caramel-ink mb-4 uppercase">{eyebrow}</p> : null}
-          <Heading id={id} className="text-safe text-h2">
-            {title}
-          </Heading>
+          <LineReveal as={Heading} id={id} text={title} className="text-safe text-h2" />
         </div>
         {ornament ? (
           <div className="mb-1 hidden shrink-0 sm:block xl:hidden">{ornament}</div>
@@ -41,6 +40,7 @@ export function SectionHead({
       ) : null}
       {body ? (
         <div
+          data-reveal=""
           className={cx(
             "text-ink-muted text-small md:col-span-5 lg:col-span-4",
             ornament ? "xl:col-span-3" : "lg:col-start-7 xl:col-start-6",
