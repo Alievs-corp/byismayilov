@@ -29,7 +29,7 @@ export const sansCyrillic = localFont({
 
 export const displayLatin = localFont({
   src: "../assets/fonts/display-latin.woff2",
-  weight: "300 500",
+  weight: "300 400",
   style: "normal",
   display: "swap",
   variable: "--font-display-latin",
@@ -45,7 +45,7 @@ export const displayLatin = localFont({
 
 export const displayCyrillic = localFont({
   src: "../assets/fonts/display-cyrillic.woff2",
-  weight: "300 500",
+  weight: "300 400",
   style: "normal",
   display: "swap",
   preload: false,

@@ -81,7 +81,7 @@ function Section({
     <section
       aria-labelledby={id}
       data-home-section={id}
-      className={cx(tone === "cream" && "bg-cream")}
+      className={cx("defer-render", tone === "cream" && "bg-cream")}
     >
       <div className="container-page py-section">{children}</div>
     </section>
@@ -113,9 +113,9 @@ async function BuiltInSection({
             title={section.title ?? dict.home.servicesTitle}
             ornament={
               <Ornament
-                name="peony"
-                width={{ base: 64, md: 76, lg: 88 }}
-                ink={1}
+                name="hair-strand"
+                width={{ base: 96, md: 120, lg: 140 }}
+                ink={1.2}
                 className="text-caramel-ink"
               />
             }
@@ -198,7 +198,7 @@ async function BuiltInSection({
     }
     case "booking":
       return (
-        <section aria-labelledby={id} data-home-section={id}>
+        <section aria-labelledby={id} data-home-section={id} className="defer-render">
           <div className="container-page py-section">
             <BookingBand
               id={id}

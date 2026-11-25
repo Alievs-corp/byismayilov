@@ -39,7 +39,9 @@ export function HeroPlaceholder({
               src={subject.src}
               alt={subject.alt}
               fill
-              priority
+              loading="eager"
+              fetchPriority="high"
+              quality={60}
               sizes="(min-width: 1024px) 26rem, (min-width: 768px) 34vw, 62vw"
               placeholder={subject.blurDataURL ? "blur" : "empty"}
               blurDataURL={subject.blurDataURL ?? undefined}

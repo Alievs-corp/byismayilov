@@ -23,7 +23,7 @@ ranges = {
 }
 
 families = {
-    "display": {"source": "NotoSerifDisplay[wdth,wght].ttf", "axes": {"wdth": 100, "wght": (300, 500)}},
+    "display": {"source": "NotoSerifDisplay[wdth,wght].ttf", "axes": {"wdth": 100, "wght": (300, 400)}},
     "sans": {"source": "Mulish[wght].ttf", "axes": {"wght": (300, 700)}},
 }
 

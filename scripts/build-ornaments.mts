@@ -16,7 +16,10 @@ for (const file of (await readdir(source)).filter((name) => name.endsWith(".svg"
   if (!viewBox) throw new Error(`${file}: no viewBox`);
   const [, , width, height] = viewBox.split(/\s+/).map(Number);
   const stroke = attribute(svg.slice(0, svg.indexOf(">")), "stroke-width");
-  const paths = [...svg.matchAll(/<path[^>]*\sd="([^"]+)"/g)].map((match) => match[1]!);
+  const digits = width! >= 400 ? 0 : 1;
+  const paths = [...svg.matchAll(/<path[^>]*\sd="([^"]+)"/g)].map((match) =>
+    match[1]!.replace(/-?\d*\.?\d+/g, (value) => String(Number(Number(value).toFixed(digits)))),
+  );
   if (!paths.length) throw new Error(`${file}: no paths`);
   const name = path.basename(file, ".svg");
   entries.push(
