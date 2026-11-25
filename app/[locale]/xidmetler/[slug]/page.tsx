@@ -5,18 +5,27 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 
 import { ArrowRightIcon } from "@/components/icons/iconsax";
+import { ServiceRail } from "@/components/home/service-rail";
 import { FactBlockView } from "@/components/seo/fact-block";
-import { button, buttonArrow } from "@/components/site/button";
+import { button, buttonArrow, card, textLink } from "@/components/site/button";
+import { Breadcrumbs } from "@/components/site/breadcrumbs";
+import { FitHeading } from "@/components/site/fit-heading";
 import { JsonLdScript } from "@/components/site/json-ld";
-import { PageHeading } from "@/components/site/page-heading";
 import { RichText } from "@/components/site/rich-text";
+import { SectionHead } from "@/components/site/section-head";
 import { richTextToPlain, summarize } from "@/lib/content/rich-text";
 import { env } from "@/lib/env";
 import { localePath } from "@/lib/i18n/config";
 import { fill } from "@/lib/i18n/format";
 import { getRequestDictionary } from "@/lib/i18n/server";
 import { formatDuration, formatPrice } from "@/lib/public/price";
-import { getServiceBySlug } from "@/lib/public/services";
+import {
+  getServiceBySlug,
+  getServiceMenu,
+  type ServiceGroup,
+  type ServiceListItem,
+  type ServiceMenu,
+} from "@/lib/public/services";
 import { localizedPaths, redirectToCanonicalSlug } from "@/lib/public/slug";
 import { routes } from "@/lib/routes";
 import { entityInfo, getCorpus } from "@/lib/seo/corpus";
@@ -55,110 +64,223 @@ export async function generateMetadata({
   });
 }
 
+function flatten(group: ServiceGroup): ServiceListItem[] {
+  return [...group.services, ...group.children.flatMap(flatten)];
+}
+
+function relatedServices(menu: ServiceMenu, serviceId: string, limit: number): ServiceListItem[] {
+  const all = [...menu.groups.flatMap(flatten), ...menu.other];
+  const own = menu.groups.find((group) => flatten(group).some((item) => item.id === serviceId));
+  const siblings = (own ? flatten(own) : []).filter((item) => item.id !== serviceId);
+  const rest = all.filter(
+    (item) => item.id !== serviceId && !siblings.some((sibling) => sibling.id === item.id),
+  );
+  return [...siblings, ...rest].slice(0, limit);
+}
+
 export default async function ServicePage({ params }: PageProps<"/[locale]/xidmetler/[slug]">) {
   await connection();
   const [{ slug }, { locale, dict }] = await Promise.all([params, getRequestDictionary()]);
   const service = await getServiceBySlug(locale, slug);
   if (!service) notFound();
   redirectToCanonicalSlug(service.slug, locale, slug, routes.service);
-  const corpus = await getCorpus();
+  const [corpus, menu] = await Promise.all([getCorpus(), getServiceMenu(locale)]);
   const corpusService = corpus.services.find((item) => item.id === service.id);
   const servicesPath = localePath(locale, routes.services());
   const booking = `${localePath(locale, routes.booking())}?xidmet=${service.id}`;
   const price = formatPrice(service.price, locale, dict.services);
   const duration = formatDuration(service.durationMinutes, dict.services);
   const [category] = service.categories;
+  const [cover, ...gallery] = service.images;
+  const related = relatedServices(menu, service.id, 3);
+  const hasText = Boolean(service.description);
 
   return (
     <>
       <article>
-        <PageHeading
-          eyebrow={category?.name ?? null}
-          title={service.name}
-          breadcrumbLabel={dict.common.breadcrumb}
-          breadcrumbs={[
-            { label: dict.common.home, href: localePath(locale) },
-            { label: dict.services.title, href: servicesPath },
-            ...(category ? [{ label: category.name, href: category.href }] : []),
-            { label: service.name, href: service.href },
-          ]}
-        >
-          <dl className="mt-8 flex flex-wrap gap-x-10 gap-y-3">
-            <div>
-              <dt className="text-ink-muted text-small">{dict.services.price}</dt>
-              <dd data-service-price="" className="tabular text-h4">
-                {price}
-              </dd>
-            </div>
-            {duration ? (
-              <div>
-                <dt className="text-ink-muted text-small">{dict.services.duration}</dt>
-                <dd className="tabular text-h4">{duration}</dd>
+        <header className="page-heading">
+          <div className="relative container-page pt-6 pb-12 lg:pb-20">
+            <Breadcrumbs
+              label={dict.common.breadcrumb}
+              items={[
+                { label: dict.common.home, href: localePath(locale) },
+                { label: dict.services.title, href: servicesPath },
+                ...(category ? [{ label: category.name, href: category.href }] : []),
+                { label: service.name, href: service.href },
+              ]}
+            />
+            <div className="gap-x-column mt-10 grid items-center gap-y-10 lg:mt-16 lg:grid-cols-12">
+              <div className="min-w-0 lg:col-span-7">
+                {category ? (
+                  <p className="text-label text-caramel-ink mb-5 uppercase">{category.name}</p>
+                ) : null}
+                <FitHeading text={service.name} />
+                {service.shortDescription ? (
+                  <RichText
+                    doc={service.shortDescription}
+                    className="text-ink-muted mt-6 max-w-xl text-lead"
+                  />
+                ) : null}
+                <dl className="mt-8 flex flex-wrap gap-x-12 gap-y-4">
+                  <div>
+                    <dt className="text-label text-ink-muted uppercase">{dict.services.price}</dt>
+                    <dd data-service-price="" className="tabular font-display mt-1 text-h3">
+                      {price}
+                    </dd>
+                  </div>
+                  {duration ? (
+                    <div>
+                      <dt className="text-label text-ink-muted uppercase">
+                        {dict.services.duration}
+                      </dt>
+                      <dd className="tabular font-display mt-1 text-h3">{duration}</dd>
+                    </div>
+                  ) : null}
+                </dl>
+                <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3">
+                  <Link href={booking} data-service-book="" className={button()}>
+                    {dict.services.book}
+                    <ArrowRightIcon size={20} className={buttonArrow} />
+                  </Link>
+                  <Link href={servicesPath} className={textLink()}>
+                    {dict.services.allServices}
+                  </Link>
+                </div>
               </div>
-            ) : null}
-          </dl>
-          <Link href={booking} className={`${button()} mt-8`}>
-            {dict.services.book}
-            <ArrowRightIcon size={20} className={buttonArrow} />
-          </Link>
-        </PageHeading>
-        <div className="container-page flex flex-col gap-14 pb-section">
-          {service.images.length ? (
-            <section aria-label={dict.services.gallery}>
-              <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {service.images.map((image, index) => (
-                  <li key={image.src} className="bg-soft relative aspect-[4/5] overflow-clip">
+              <div className="lg:col-span-5">
+                <div className="bg-champagne rounded-arch relative mx-auto aspect-[4/5] w-full max-w-md overflow-clip lg:max-w-none">
+                  {cover ? (
                     <Image
-                      src={image.src}
-                      alt={image.alt}
+                      src={cover.src}
+                      alt={cover.alt}
                       fill
-                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                      loading={index === 0 ? "eager" : "lazy"}
+                      sizes="(min-width: 1024px) 40vw, 90vw"
+                      loading="eager"
+                      fetchPriority="high"
+                      quality={75}
+                      placeholder={cover.blurDataURL ? "blur" : "empty"}
+                      blurDataURL={cover.blurDataURL ?? undefined}
                       className="object-cover"
                     />
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
-          {service.shortDescription ? (
-            <RichText doc={service.shortDescription} className="text-lead" />
-          ) : null}
-          {service.description ? <RichText doc={service.description} /> : null}
-          {service.masters.length ? (
-            <section aria-labelledby="service-masters">
-              <h2 id="service-masters" className="text-h3">
-                {dict.services.masters}
-              </h2>
-              <ul className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                {service.masters.map((master) => (
-                  <li key={master.id} className="flex items-center gap-4">
-                    {master.photo ? (
-                      <Image
-                        src={master.photo.src}
-                        alt={master.photo.alt}
-                        width={64}
-                        height={64}
-                        sizes="64px"
-                        className="size-16 rounded-full object-cover"
-                      />
-                    ) : null}
-                    <span>
-                      <span className="block font-medium">{master.name}</span>
-                      <span className="text-ink-muted block text-small">{master.role}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
-          {corpusService ? (
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+        {hasText || service.masters.length ? (
+          <div className="gap-x-column container-page grid gap-y-14 pt-14 pb-14 lg:grid-cols-12 lg:pt-24 lg:pb-24">
+            {service.description ? (
+              <section aria-labelledby="service-overview" className="lg:col-span-7">
+                <h2 id="service-overview" className="text-h3">
+                  {dict.services.overview}
+                </h2>
+                <RichText doc={service.description} className="mt-6" />
+              </section>
+            ) : null}
+            {service.masters.length ? (
+              <section
+                aria-labelledby="service-masters"
+                className={hasText ? "lg:col-span-4 lg:col-start-9" : "lg:col-span-8"}
+              >
+                <h2 id="service-masters" className="text-h3">
+                  {dict.services.masters}
+                </h2>
+                <ul className="mt-6 flex flex-col gap-3">
+                  {service.masters.map((master) => (
+                    <li key={master.id} className={`${card({ tone: "soft" })} group/card`}>
+                      <div className="flex items-center gap-4 p-4">
+                        {master.photo ? (
+                          <Image
+                            src={master.photo.src}
+                            alt=""
+                            width={64}
+                            height={64}
+                            sizes="64px"
+                            className="size-16 shrink-0 rounded-full object-cover"
+                          />
+                        ) : (
+                          <span
+                            aria-hidden="true"
+                            className="bg-champagne size-16 shrink-0 rounded-full"
+                          />
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="font-display text-h4">
+                            <Link
+                              href={`${booking}&usta=${master.id}`}
+                              prefetch={false}
+                              className="card-link"
+                            >
+                              {master.name}
+                            </Link>
+                          </p>
+                          <p className="text-ink-muted text-small">{master.role}</p>
+                        </div>
+                        <ArrowRightIcon size={20} className="shrink-0" />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+          </div>
+        ) : null}
+        {gallery.length ? (
+          <section aria-label={dict.services.gallery} className="container-page pb-14 lg:pb-24">
+            <ul className="gap-column grid grid-cols-2 lg:grid-cols-12">
+              {gallery.map((image, index) => (
+                <li
+                  key={image.src}
+                  className={
+                    index === 0
+                      ? "bg-soft rounded-card relative col-span-2 aspect-[4/5] overflow-clip lg:col-span-6 lg:aspect-[5/4]"
+                      : "bg-soft rounded-card relative aspect-[4/5] overflow-clip lg:col-span-3"
+                  }
+                >
+                  <Image
+                    src={image.src}
+                    alt={image.alt}
+                    fill
+                    sizes="(min-width: 1024px) 40vw, 50vw"
+                    loading="lazy"
+                    className="object-cover"
+                  />
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+        {related.length ? (
+          <section
+            aria-labelledby="service-related"
+            className="bg-cream defer-render py-14 lg:py-24"
+          >
+            <div className="container-page">
+              <SectionHead
+                id="service-related"
+                title={dict.services.related}
+                body={<p>{dict.services.relatedBody}</p>}
+                aside={
+                  <Link href={servicesPath} className={textLink()}>
+                    {dict.services.allServices}
+                  </Link>
+                }
+              />
+            </div>
+            <div className="mt-10">
+              <ServiceRail id="related-services" services={related} locale={locale} dict={dict} />
+            </div>
+          </section>
+        ) : null}
+        {corpusService ? (
+          <div className="container-page pt-14 pb-section">
             <FactBlockView
               block={serviceFactBlock(corpus, corpusService, locale, dict)}
               className="border-t border-line pt-12"
             />
-          ) : null}
-        </div>
+          </div>
+        ) : null}
       </article>
       <JsonLdScript
         data={serviceJsonLd(

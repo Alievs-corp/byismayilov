@@ -298,7 +298,7 @@ export function ServicesView({ role }: { role: UserRole }) {
         }),
         column.accessor("updatedAt", {
           header: t("Dəyişib"),
-          meta: { label: t("Dəyişib"), mobile: "hidden" },
+          meta: { label: t("Dəyişib"), mobile: "hidden", className: "whitespace-nowrap" },
           cell: ({ getValue }) => formatDateTime(getValue<string>(), t.locale),
         }),
       ]),

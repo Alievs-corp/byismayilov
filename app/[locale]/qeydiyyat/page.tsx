@@ -3,6 +3,8 @@ import { connection } from "next/server";
 
 import { BookingPanel, parseIdList } from "@/components/site/booking/booking-section";
 import { CallIcon } from "@/components/icons/iconsax";
+import { Glow } from "@/components/ornament/glow";
+import { Ornament } from "@/components/ornament/ornament";
 import { JsonLdScript } from "@/components/site/json-ld";
 import { PageHeading } from "@/components/site/page-heading";
 import { telHref } from "@/lib/contact-links";
@@ -70,14 +72,45 @@ export default async function BookingPage({ searchParams }: PageProps<"/[locale]
           </p>
         ) : null}
       </PageHeading>
-      <div className="container-page pb-section">
-        <div className="max-w-4xl">
-          <BookingPanel
-            locale={locale}
-            dict={dict}
-            serviceIds={parseIdList(query.xidmet)}
-            masterId={masterId ?? null}
+      <div className="container-page pt-10 pb-section lg:pt-14">
+        <div className="gap-x-column relative grid gap-y-10 lg:grid-cols-12">
+          <Glow
+            name="orb-light"
+            className="pointer-events-none absolute top-1/2 left-[52%] z-0 hidden w-[26rem] -translate-y-1/2 lg:block"
           />
+          <div className="rounded-card bg-cream relative z-10 border border-line p-6 sm:p-10 lg:col-span-8 lg:p-12">
+            <BookingPanel
+              locale={locale}
+              dict={dict}
+              serviceIds={parseIdList(query.xidmet)}
+              masterId={masterId ?? null}
+            />
+          </div>
+          <aside className="relative z-10 lg:col-span-3 lg:col-start-10">
+            <div className="lg:sticky lg:top-[calc(var(--spacing-header)+2rem)]">
+              <h2 className="text-label text-caramel-ink font-sans uppercase">
+                {dict.booking.sideTitle}
+              </h2>
+              <ol className="mt-6 flex flex-col gap-6">
+                {[dict.booking.step1, dict.booking.step2, dict.booking.step3].map((step, index) => (
+                  <li key={step} className="flex gap-4">
+                    <span className="font-display text-caramel tabular text-h3 leading-none">
+                      {index + 1}
+                    </span>
+                    <span className="text-ink-muted text-small">{step}</span>
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-8 border-t border-line pt-6 text-small">{dict.booking.sideNote}</p>
+              <div className="mt-10 hidden lg:block">
+                <Ornament
+                  name="magnolia"
+                  width={{ base: 200, lg: 240 }}
+                  className="text-caramel-ink"
+                />
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
       <JsonLdScript

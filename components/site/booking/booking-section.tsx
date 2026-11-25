@@ -49,6 +49,14 @@ export function bookingLabels(dict: Dictionary): BookingFormLabels {
     again: booking.again,
     honeypot: booking.honeypot,
     formLabel: booking.formLabel,
+    stepService: booking.stepService,
+    stepTime: booking.stepTime,
+    stepContact: booking.stepContact,
+    selected: booking.selected,
+    consent: booking.consent,
+    errorConsent: booking.errorConsent,
+    successServices: booking.successServices,
+    successDate: booking.successDate,
   };
 }
 
