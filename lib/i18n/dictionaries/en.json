@@ -20,9 +20,12 @@
     "closeMenu": "Close menu"
   },
   "hero": {
-    "headline": "Beauty salon",
+    "headline": "Hair colouring and cuts",
     "book": "Book online",
-    "services": "Services"
+    "services": "Services",
+    "subline": "Natural looking colour transitions and fresh haircuts by Elmeddin Ismayilov.",
+    "chipA": "Natural Looking Coloring",
+    "chipB": "Fresh Hair Cutting"
   },
   "contact": {
     "title": "Contact",
@@ -42,17 +45,23 @@
     "contacts": "Contact",
     "followUs": "Follow us",
     "rights": "All rights reserved.",
-    "navigation": "Navigation"
+    "navigation": "Navigation",
+    "tagline": "Natural looking colouring and fresh hair cutting."
   },
   "home": {
-    "servicesTitle": "Services",
+    "servicesTitle": "Services and prices",
     "mastersTitle": "Our masters",
     "galleryTitle": "Our work",
     "reviewsTitle": "Reviews",
     "bookingTitle": "Book online",
     "bookingBody": "Choose a service and a time that suits you, and the salon will call you to confirm.",
     "postsTitle": "Blog",
-    "contactTitle": "Contact"
+    "contactTitle": "Contact",
+    "servicesBody": "The price and duration of every service. Choose, book online and the salon confirms the time.",
+    "masterLabel": "Master",
+    "galleryBody": "A selection of work done in the salon.",
+    "allWork": "All work",
+    "contactBody": "Call, message us or book online."
   },
   "services": {
     "title": "Services",

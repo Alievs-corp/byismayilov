@@ -20,9 +20,12 @@
     "closeMenu": "Закрыть меню"
   },
   "hero": {
-    "headline": "Салон красоты",
+    "headline": "Окрашивание и стрижки",
     "book": "Онлайн-запись",
-    "services": "Услуги"
+    "services": "Услуги",
+    "subline": "Естественные цветовые переходы и свежие стрижки от Эльмеддина Исмайылова.",
+    "chipA": "Natural Looking Coloring",
+    "chipB": "Fresh Hair Cutting"
   },
   "contact": {
     "title": "Контакты",
@@ -42,17 +45,23 @@
     "contacts": "Контакты",
     "followUs": "Мы в соцсетях",
     "rights": "Все права защищены.",
-    "navigation": "Навигация"
+    "navigation": "Навигация",
+    "tagline": "Естественное окрашивание и свежие стрижки."
   },
   "home": {
-    "servicesTitle": "Услуги",
+    "servicesTitle": "Услуги и цены",
     "mastersTitle": "Наши мастера",
     "galleryTitle": "Наши работы",
     "reviewsTitle": "Отзывы",
     "bookingTitle": "Онлайн-запись",
     "bookingBody": "Выберите услугу и удобное время, салон свяжется с вами и подтвердит запись.",
     "postsTitle": "Блог",
-    "contactTitle": "Контакты"
+    "contactTitle": "Контакты",
+    "servicesBody": "Цена и длительность каждой услуги. Выберите, запишитесь онлайн, и салон подтвердит время.",
+    "masterLabel": "Мастер",
+    "galleryBody": "Подборка работ, выполненных в салоне.",
+    "allWork": "Все работы",
+    "contactBody": "Позвоните, напишите или запишитесь онлайн."
   },
   "services": {
     "title": "Услуги",
