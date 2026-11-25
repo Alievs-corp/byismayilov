@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 
-import { DangerIcon } from "@/components/icons/iconsax";
+import { DangerIcon, TickCircleIcon } from "@/components/icons/iconsax";
 import { button } from "@/components/site/button";
 import {
   choiceChip,
@@ -49,6 +49,14 @@ export type BookingFormLabels = {
   again: string;
   honeypot: string;
   formLabel: string;
+  stepService: string;
+  stepTime: string;
+  stepContact: string;
+  selected: string;
+  consent: string;
+  errorConsent: string;
+  successServices: string;
+  successDate: string;
 };
 
 export type BookingServiceGroup = {
@@ -57,7 +65,7 @@ export type BookingServiceGroup = {
   services: { id: string; name: string }[];
 };
 
-type Field = "name" | "phone" | "serviceIds" | "masterId" | "preferredDate" | "message";
+type Field = "name" | "phone" | "serviceIds" | "masterId" | "preferredDate" | "message" | "consent";
 
 type TimeWindow = "any" | "morning" | "afternoon" | "evening";
 
@@ -69,17 +77,19 @@ type Values = {
   preferredDate: string;
   timeWindow: TimeWindow;
   message: string;
+  consent: boolean;
 };
 
 const loadSchema = () => import("@/lib/validation/booking-requests");
 
 const fieldNames: readonly Field[] = [
-  "name",
-  "phone",
   "serviceIds",
   "masterId",
   "preferredDate",
+  "name",
+  "phone",
   "message",
+  "consent",
 ];
 
 function fieldOf(path: string): Field | null {
@@ -99,6 +109,8 @@ function fieldMessage(field: Field, labels: BookingFormLabels): string {
       return labels.errorServices;
     case "message":
       return labels.errorTooLong;
+    case "consent":
+      return labels.errorConsent;
     case "masterId":
       return labels.errorGeneric;
   }
@@ -174,6 +186,7 @@ export function BookingForm({
     preferredDate: "",
     timeWindow: "any",
     message: "",
+    consent: false,
   };
   const [values, setValues] = useState<Values>(initial);
   const [honeypot, setHoneypot] = useState("");
@@ -217,8 +230,9 @@ export function BookingForm({
     event.preventDefault();
     if (sending) return;
     setFormError(null);
+    const { consent, ...submitted } = values;
     const payload = {
-      ...values,
+      ...submitted,
       masterId: values.masterId || null,
       preferredDate: values.preferredDate || null,
       locale,
@@ -226,16 +240,17 @@ export function BookingForm({
     };
     const { bookingSubmissionSchema } = await loadSchema();
     const parsed = bookingSubmissionSchema.safeParse(payload);
+    const next: Partial<Record<Field, string>> = {};
+    if (!consent) next.consent = labels.errorConsent;
     if (!parsed.success) {
-      const next: Partial<Record<Field, string>> = {};
       for (const issue of parsed.error.issues) {
         const field = fieldOf(issue.path.join("."));
         if (field) next[field] ??= fieldMessage(field, labels);
       }
-      if (Object.keys(next).length) {
-        showErrors(next);
-        return;
-      }
+    }
+    if (Object.keys(next).length) {
+      showErrors(next);
+      return;
     }
     setStatus("sending");
     try {
@@ -256,12 +271,12 @@ export function BookingForm({
       const body = (await response.json().catch(() => null)) as {
         fields?: Record<string, string>;
       } | null;
-      const next: Partial<Record<Field, string>> = {};
+      const serverErrors: Partial<Record<Field, string>> = {};
       for (const key of Object.keys(body?.fields ?? {})) {
         const field = fieldOf(key);
-        if (field) next[field] ??= fieldMessage(field, labels);
+        if (field) serverErrors[field] ??= fieldMessage(field, labels);
       }
-      if (Object.keys(next).length) showErrors(next);
+      if (Object.keys(serverErrors).length) showErrors(serverErrors);
       else setFormError(labels.errorGeneric);
     } catch {
       setStatus("idle");
@@ -276,18 +291,42 @@ export function BookingForm({
     setStatus("idle");
   };
 
+  const serviceNames = new Map(
+    groups.flatMap((group) => group.services.map((service) => [service.id, service.name] as const)),
+  );
+
   if (status === "sent") {
+    const chosen = values.serviceIds.flatMap((serviceId) => serviceNames.get(serviceId) ?? []);
     return (
       <div
         ref={successRef}
         tabIndex={-1}
         role="status"
         data-booking-success=""
-        className="rounded-card bg-cream p-6 outline-none sm:p-10"
+        className="flex flex-col items-start gap-5 outline-none"
       >
-        <h2 className="text-h3">{labels.successTitle}</h2>
-        <p className="text-ink-muted mt-3">{labels.successBody}</p>
-        <button type="button" onClick={reset} className={`${button({ variant: "outline" })} mt-6`}>
+        <span className="text-caramel-ink inline-flex size-14 items-center justify-center rounded-full bg-white">
+          <TickCircleIcon size={32} />
+        </span>
+        <h2 className="text-h2">{labels.successTitle}</h2>
+        <p className="text-ink-muted max-w-xl text-lead">{labels.successBody}</p>
+        {chosen.length || values.preferredDate ? (
+          <dl className="grid w-full max-w-xl gap-4 border-t border-line pt-5 text-small sm:grid-cols-2">
+            {chosen.length ? (
+              <div>
+                <dt className="text-label text-ink-muted uppercase">{labels.successServices}</dt>
+                <dd className="mt-1">{chosen.join(", ")}</dd>
+              </div>
+            ) : null}
+            {values.preferredDate ? (
+              <div>
+                <dt className="text-label text-ink-muted uppercase">{labels.successDate}</dt>
+                <dd className="tabular mt-1">{values.preferredDate}</dd>
+              </div>
+            ) : null}
+          </dl>
+        ) : null}
+        <button type="button" onClick={reset} className={`${button({ variant: "outline" })} mt-2`}>
           {labels.again}
         </button>
       </div>
@@ -304,6 +343,13 @@ export function BookingForm({
     { value: "evening", label: labels.timeEvening },
   ];
 
+  const stepHeading = (index: number, title: string) => (
+    <h2 className="text-label text-caramel-ink flex items-center gap-4 border-b border-line pb-3 font-sans uppercase">
+      <span className="tabular">{`0${index}`}</span>
+      {title}
+    </h2>
+  );
+
   return (
     <form
       ref={formRef}
@@ -311,65 +357,24 @@ export function BookingForm({
       onSubmit={onSubmit}
       aria-label={labels.formLabel}
       data-booking-form=""
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-10"
     >
       <p className="text-ink-muted text-small">{labels.requiredNote}</p>
-      <div className="grid gap-6 sm:grid-cols-2">
-        <FormField
-          id={id("name")}
-          label={labels.name}
-          required
-          requiredLabel={labels.required}
-          error={errors.name}
-        >
-          <input
-            id={id("name")}
-            name="name"
-            data-field="name"
-            autoComplete="name"
-            value={values.name}
-            onChange={(event) => update("name", event.target.value)}
-            aria-invalid={errors.name ? true : undefined}
-            aria-describedby={describedBy("name")}
-            className={fieldControl}
-          />
-        </FormField>
-        <FormField
-          id={id("phone")}
-          label={labels.phone}
-          required
-          requiredLabel={labels.required}
-          error={errors.phone}
-          hint={labels.phoneHint}
-        >
-          <input
-            id={id("phone")}
-            name="phone"
-            data-field="phone"
-            type="tel"
-            inputMode="tel"
-            autoComplete="tel"
-            value={values.phone}
-            onChange={(event) => update("phone", formatPhoneInput(event.target.value))}
-            aria-invalid={errors.phone ? true : undefined}
-            aria-describedby={describedBy("phone", true)}
-            className={fieldControl}
-          />
-        </FormField>
-      </div>
       <fieldset
         data-field="serviceIds"
         tabIndex={-1}
         aria-describedby={describedBy("serviceIds", true)}
-        className="outline-none"
+        className="flex flex-col gap-5 outline-none"
       >
-        <legend className={fieldLabel}>{labels.services}</legend>
+        <legend className="contents">{stepHeading(1, labels.stepService)}</legend>
         {groups.length ? (
-          <div className="mt-2 flex flex-col gap-4">
+          <div className="flex flex-col gap-6">
             {groups.map((group) => (
               <div key={group.id}>
-                {group.name ? <p className="text-ink-muted text-small">{group.name}</p> : null}
-                <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+                {group.name ? (
+                  <p className="text-ink-muted text-small font-semibold">{group.name}</p>
+                ) : null}
+                <ul className="mt-3 grid gap-2 sm:grid-cols-2">
                   {group.services.map((service) => (
                     <li key={service.id}>
                       <label className={choiceChip}>
@@ -390,103 +395,189 @@ export function BookingForm({
             ))}
           </div>
         ) : (
-          <p className="text-ink-muted mt-2 text-small">{labels.noServices}</p>
+          <p className="text-ink-muted text-small">{labels.noServices}</p>
         )}
-        {errors.serviceIds ? (
-          <p
-            id={`${id("serviceIds")}-error`}
-            className="text-danger mt-2 flex items-center gap-2 text-small"
-          >
-            <DangerIcon size={16} className="shrink-0" />
-            {errors.serviceIds}
-          </p>
-        ) : groups.length ? (
-          <p id={`${id("serviceIds")}-hint`} className="text-ink-muted mt-2 text-small">
-            {labels.servicesHint}
-          </p>
-        ) : null}
-      </fieldset>
-      <div className="grid gap-6 sm:grid-cols-3">
-        {masters.length ? (
-          <FormField
-            id={id("masterId")}
-            label={labels.master}
-            requiredLabel={labels.required}
-            error={errors.masterId}
-          >
-            <select
-              id={id("masterId")}
-              name="masterId"
-              data-field="masterId"
-              value={values.masterId}
-              onChange={(event) => update("masterId", event.target.value)}
-              aria-invalid={errors.masterId ? true : undefined}
-              aria-describedby={describedBy("masterId")}
-              className={selectControl}
+        <div aria-live="polite" className="min-h-6">
+          {errors.serviceIds ? (
+            <p
+              id={`${id("serviceIds")}-error`}
+              className="text-danger flex items-center gap-2 text-small"
             >
-              <option value="">{labels.anyMaster}</option>
-              {masters.map((master) => (
-                <option key={master.id} value={master.id}>
-                  {master.name}
-                </option>
-              ))}
-            </select>
-          </FormField>
-        ) : null}
-        <FormField
-          id={id("preferredDate")}
-          label={labels.date}
-          requiredLabel={labels.required}
-          error={errors.preferredDate}
-        >
-          <input
+              <DangerIcon size={16} className="shrink-0" />
+              {errors.serviceIds}
+            </p>
+          ) : groups.length ? (
+            <p id={`${id("serviceIds")}-hint`} className="text-ink-muted text-small">
+              {values.serviceIds.length
+                ? labels.selected.replace("{count}", String(values.serviceIds.length))
+                : labels.servicesHint}
+            </p>
+          ) : null}
+        </div>
+      </fieldset>
+      <div className="flex flex-col gap-6">
+        {stepHeading(2, labels.stepTime)}
+        <div className="grid gap-6 sm:grid-cols-2">
+          {masters.length ? (
+            <FormField
+              id={id("masterId")}
+              label={labels.master}
+              requiredLabel={labels.required}
+              error={errors.masterId}
+            >
+              <select
+                id={id("masterId")}
+                name="masterId"
+                data-field="masterId"
+                value={values.masterId}
+                onChange={(event) => update("masterId", event.target.value)}
+                aria-invalid={errors.masterId ? true : undefined}
+                aria-describedby={describedBy("masterId")}
+                className={selectControl}
+              >
+                <option value="">{labels.anyMaster}</option>
+                {masters.map((master) => (
+                  <option key={master.id} value={master.id}>
+                    {master.name}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+          ) : null}
+          <FormField
             id={id("preferredDate")}
-            name="preferredDate"
-            data-field="preferredDate"
-            type="date"
-            min={minDate}
-            value={values.preferredDate}
-            onChange={(event) => update("preferredDate", event.target.value)}
-            aria-invalid={errors.preferredDate ? true : undefined}
-            aria-describedby={describedBy("preferredDate")}
-            className={fieldControl}
+            label={labels.date}
+            requiredLabel={labels.required}
+            error={errors.preferredDate}
+          >
+            <input
+              id={id("preferredDate")}
+              name="preferredDate"
+              data-field="preferredDate"
+              type="date"
+              min={minDate}
+              value={values.preferredDate}
+              onChange={(event) => update("preferredDate", event.target.value)}
+              aria-invalid={errors.preferredDate ? true : undefined}
+              aria-describedby={describedBy("preferredDate")}
+              className={fieldControl}
+            />
+          </FormField>
+        </div>
+        <fieldset>
+          <legend className={fieldLabel}>{labels.time}</legend>
+          <ul className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {timeOptions.map((option) => (
+              <li key={option.value}>
+                <label className={choiceChip}>
+                  <input
+                    type="radio"
+                    name="timeWindow"
+                    value={option.value}
+                    checked={values.timeWindow === option.value}
+                    onChange={() => update("timeWindow", option.value)}
+                    className={choiceInput}
+                  />
+                  {option.label}
+                </label>
+              </li>
+            ))}
+          </ul>
+        </fieldset>
+      </div>
+      <div className="flex flex-col gap-6">
+        {stepHeading(3, labels.stepContact)}
+        <div className="grid gap-6 sm:grid-cols-2">
+          <FormField
+            id={id("name")}
+            label={labels.name}
+            required
+            requiredLabel={labels.required}
+            error={errors.name}
+          >
+            <input
+              id={id("name")}
+              name="name"
+              data-field="name"
+              autoComplete="name"
+              value={values.name}
+              onChange={(event) => update("name", event.target.value)}
+              aria-invalid={errors.name ? true : undefined}
+              aria-describedby={describedBy("name")}
+              className={fieldControl}
+            />
+          </FormField>
+          <FormField
+            id={id("phone")}
+            label={labels.phone}
+            required
+            requiredLabel={labels.required}
+            error={errors.phone}
+            hint={labels.phoneHint}
+          >
+            <input
+              id={id("phone")}
+              name="phone"
+              data-field="phone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              value={values.phone}
+              onChange={(event) => update("phone", formatPhoneInput(event.target.value))}
+              aria-invalid={errors.phone ? true : undefined}
+              aria-describedby={describedBy("phone", true)}
+              className={fieldControl}
+            />
+          </FormField>
+        </div>
+        <FormField
+          id={id("message")}
+          label={labels.message}
+          requiredLabel={labels.required}
+          error={errors.message}
+        >
+          <textarea
+            id={id("message")}
+            name="message"
+            data-field="message"
+            rows={4}
+            placeholder={labels.messagePlaceholder}
+            value={values.message}
+            onChange={(event) => update("message", event.target.value)}
+            aria-invalid={errors.message ? true : undefined}
+            aria-describedby={describedBy("message")}
+            className={textareaControl}
           />
         </FormField>
-        <FormField id={id("timeWindow")} label={labels.time} requiredLabel={labels.required}>
-          <select
-            id={id("timeWindow")}
-            name="timeWindow"
-            value={values.timeWindow}
-            onChange={(event) => update("timeWindow", event.target.value as TimeWindow)}
-            className={selectControl}
-          >
-            {timeOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </FormField>
+        <div>
+          <label className="flex min-h-11 cursor-pointer items-start gap-3 text-small">
+            <input
+              type="checkbox"
+              name="consent"
+              data-field="consent"
+              checked={values.consent}
+              onChange={(event) => update("consent", event.target.checked)}
+              aria-invalid={errors.consent ? true : undefined}
+              aria-describedby={describedBy("consent")}
+              className="accent-ink mt-0.5 size-5 shrink-0"
+            />
+            <span>
+              {labels.consent}
+              <span aria-hidden="true"> *</span>
+              <span className="sr-only"> ({labels.required})</span>
+            </span>
+          </label>
+          {errors.consent ? (
+            <p
+              id={`${id("consent")}-error`}
+              className="text-danger mt-2 flex items-center gap-2 text-small"
+            >
+              <DangerIcon size={16} className="shrink-0" />
+              {errors.consent}
+            </p>
+          ) : null}
+        </div>
       </div>
-      <FormField
-        id={id("message")}
-        label={labels.message}
-        requiredLabel={labels.required}
-        error={errors.message}
-      >
-        <textarea
-          id={id("message")}
-          name="message"
-          data-field="message"
-          rows={4}
-          placeholder={labels.messagePlaceholder}
-          value={values.message}
-          onChange={(event) => update("message", event.target.value)}
-          aria-invalid={errors.message ? true : undefined}
-          aria-describedby={describedBy("message")}
-          className={textareaControl}
-        />
-      </FormField>
       <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
         <label htmlFor={id("website")}>{labels.honeypot}</label>
         <input
@@ -505,7 +596,12 @@ export function BookingForm({
         </p>
       ) : null}
       <div>
-        <button type="submit" disabled={sending} aria-busy={sending} className={button()}>
+        <button
+          type="submit"
+          disabled={sending}
+          aria-busy={sending}
+          className={button({ size: "lg" })}
+        >
           {sending ? labels.sending : labels.submit}
         </button>
       </div>

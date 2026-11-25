@@ -79,7 +79,14 @@
     "gallery": "Şəkillər",
     "categories": "Kateqoriya",
     "masters": "Bu xidməti edən ustalar",
-    "detailDescription": "{name}: byismayilov salonunda. Qiymət, müddət və onlayn qeydiyyat."
+    "detailDescription": "{name}: byismayilov salonunda. Qiymət, müddət və onlayn qeydiyyat.",
+    "jump": "Kateqoriyalar üzrə keçid",
+    "bookService": "Yazıl",
+    "count": "{count} xidmət",
+    "related": "Oxşar xidmətlər",
+    "relatedBody": "Eyni kateqoriyadan digər xidmətlər.",
+    "allServices": "Bütün xidmətlər",
+    "overview": "Xidmət haqqında"
   },
   "masters": {
     "title": "Ustalar",
@@ -151,7 +158,20 @@
     "again": "Yeni qeydiyyat",
     "honeypot": "Bu sahəni boş saxlayın",
     "formLabel": "Qeydiyyat forması",
-    "direct": "Birbaşa zəng edin"
+    "direct": "Birbaşa zəng edin",
+    "stepService": "Xidmət",
+    "stepTime": "Vaxt və usta",
+    "stepContact": "Əlaqə",
+    "selected": "{count} xidmət seçilib",
+    "consent": "Məlumatlarımın qeydiyyat üçün salonla paylaşılmasına razıyam.",
+    "errorConsent": "Davam etmək üçün razılığınızı bildirin.",
+    "sideTitle": "Necə işləyir",
+    "step1": "Xidməti və sizə rahat vaxtı seçin.",
+    "step2": "Salon sizinlə telefon və ya WhatsApp ilə əlaqə saxlayır.",
+    "step3": "Vaxt təsdiqlənir, sizi salonda gözləyirik.",
+    "sideNote": "Bu sorğudur, vaxt salon təsdiqləyənə qədər qəti deyil.",
+    "successServices": "Seçdiyiniz xidmətlər",
+    "successDate": "Arzu olunan tarix"
   },
   "locales": {
     "az": "Azərbaycanca",

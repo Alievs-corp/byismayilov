@@ -79,7 +79,14 @@
     "gallery": "Photos",
     "categories": "Category",
     "masters": "Masters for this service",
-    "detailDescription": "{name} at the byismayilov salon. Price, duration and online booking."
+    "detailDescription": "{name} at the byismayilov salon. Price, duration and online booking.",
+    "jump": "Jump to a category",
+    "bookService": "Book",
+    "count": "{count} services",
+    "related": "Related services",
+    "relatedBody": "More services from the same category.",
+    "allServices": "All services",
+    "overview": "About the service"
   },
   "masters": {
     "title": "Masters",
@@ -151,7 +158,20 @@
     "again": "New booking",
     "honeypot": "Leave this field empty",
     "formLabel": "Booking form",
-    "direct": "Call us directly"
+    "direct": "Call us directly",
+    "stepService": "Service",
+    "stepTime": "Time and master",
+    "stepContact": "Contact",
+    "selected": "{count} selected",
+    "consent": "I agree to my details being shared with the salon for this booking.",
+    "errorConsent": "Please confirm your consent to continue.",
+    "sideTitle": "How it works",
+    "step1": "Choose the service and a time that suits you.",
+    "step2": "The salon contacts you by phone or WhatsApp.",
+    "step3": "The time is confirmed and we see you at the salon.",
+    "sideNote": "This is a request: the time is not fixed until the salon confirms it.",
+    "successServices": "Selected services",
+    "successDate": "Preferred date"
   },
   "locales": {
     "az": "Azərbaycanca",
