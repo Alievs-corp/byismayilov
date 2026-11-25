@@ -1,6 +1,6 @@
 import { reducedMotion } from "./loop";
 
-const revealSelector = "[data-reveal],[data-line-reveal],[data-wordmark]";
+const revealSelector = "[data-reveal],[data-line-reveal],[data-wordmark],[data-ornament]";
 
 function indexLines(heading: HTMLElement) {
   let line = -1;

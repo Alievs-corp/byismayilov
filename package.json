@@ -16,11 +16,13 @@
     "db:migrate": "tsx scripts/migrate.mts",
     "db:seed": "tsx scripts/seed.mts",
     "db:seed:demo": "tsx scripts/seed.mts --demo",
+    "db:seed:local-media": "tsx scripts/seed-local-media.mts",
     "db:studio": "drizzle-kit studio",
     "auth:owner": "tsx scripts/create-owner.mts",
     "storage:cors": "tsx scripts/storage-cors.mts",
     "check:seo": "tsx scripts/check-seo.mts",
-    "hero:upload": "tsx scripts/hero-upload.mts"
+    "hero:upload": "tsx scripts/hero-upload.mts",
+    "ornaments:build": "tsx scripts/build-ornaments.mts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1152.0",

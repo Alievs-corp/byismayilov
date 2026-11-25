@@ -565,3 +565,62 @@ html.lenis body {
     transform: scaleX(1);
   }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-motion] [data-ornament] {
+    --o-ease: var(--ease-out-soft);
+  }
+  :root[data-motion] [data-ornament="draw"] path {
+    stroke-dasharray: 1;
+    transition: stroke-dashoffset var(--o-dur, var(--motion-ornament)) var(--o-ease);
+  }
+  :root[data-motion] [data-ornament="draw"] svg {
+    transition: opacity var(--motion-base) var(--ease-standard);
+  }
+  :root[data-motion] [data-ornament="draw"]:not([data-revealed]) path {
+    stroke-dashoffset: 1;
+  }
+  :root[data-motion] [data-ornament="draw"]:not([data-revealed]) svg {
+    opacity: 0;
+  }
+  :root[data-motion] [data-ornament="rise"],
+  :root[data-motion] [data-ornament="glow"] {
+    transition:
+      opacity var(--o-dur, 1200ms) var(--o-ease),
+      translate var(--o-dur, 1200ms) var(--o-ease);
+  }
+  :root[data-motion] [data-ornament="rise"]:not([data-revealed]) {
+    opacity: 0;
+    translate: 0 14px;
+  }
+  :root[data-motion] [data-ornament="glow"]:not([data-revealed]) {
+    opacity: 0;
+  }
+  :root[data-motion] [data-ornament="twinkle"] {
+    transition:
+      opacity var(--motion-ornament-short) var(--o-ease),
+      scale var(--motion-ornament-short) var(--o-ease),
+      rotate var(--motion-ornament-short) var(--o-ease);
+  }
+  :root[data-motion] [data-ornament="twinkle"]:not([data-revealed]) {
+    opacity: 0;
+    scale: 0.6;
+    rotate: -25deg;
+  }
+  .glow[data-float] {
+    animation: glow-float var(--motion-ambient) var(--ease-in-out) infinite alternate;
+    animation-play-state: paused;
+  }
+  .glow[data-float][data-playing] {
+    animation-play-state: running;
+  }
+}
+
+@keyframes glow-float {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-4%, 3%, 0) scale(1.06);
+  }
+}

@@ -20,9 +20,12 @@
     "closeMenu": "Menyunu bağla"
   },
   "hero": {
-    "headline": "Gözəllik salonu",
+    "headline": "Saç rəngləmə və kəsim",
     "book": "Onlayn qeydiyyat",
-    "services": "Xidmətlər"
+    "services": "Xidmətlər",
+    "subline": "Elməddin İsmayılovdan təbii görünüşlü rəng keçidləri və təravətli saç kəsimi.",
+    "chipA": "Təbii görünüşlü rəng",
+    "chipB": "Təravətli kəsim"
   },
   "contact": {
     "title": "Əlaqə",
@@ -42,17 +45,23 @@
     "contacts": "Əlaqə",
     "followUs": "Bizi izləyin",
     "rights": "Bütün hüquqlar qorunur.",
-    "navigation": "Naviqasiya"
+    "navigation": "Naviqasiya",
+    "tagline": "Təbii görünüşlü rəngləmə və təravətli saç kəsimi."
   },
   "home": {
-    "servicesTitle": "Xidmətlər",
+    "servicesTitle": "Xidmətlər və qiymətlər",
     "mastersTitle": "Ustalarımız",
     "galleryTitle": "İşlərimiz",
     "reviewsTitle": "Rəylər",
     "bookingTitle": "Onlayn qeydiyyat",
     "bookingBody": "Xidməti və sizə rahat vaxtı seçin, salon sizinlə əlaqə saxlayıb vaxtı təsdiqləsin.",
     "postsTitle": "Bloq",
-    "contactTitle": "Əlaqə"
+    "contactTitle": "Əlaqə",
+    "servicesBody": "Hər xidmətin qiyməti və müddəti. Seçin, onlayn qeydiyyatdan keçin, salon vaxtı sizinlə təsdiqləsin.",
+    "masterLabel": "Usta",
+    "galleryBody": "Salonda görülmüş işlərdən seçmələr.",
+    "allWork": "Bütün işlər",
+    "contactBody": "Zəng edin, yazın və ya onlayn qeydiyyatdan keçin."
   },
   "services": {
     "title": "Xidmətlər",

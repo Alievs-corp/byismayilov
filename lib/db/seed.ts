@@ -8,9 +8,9 @@ type Database = PostgresJsDatabase<typeof schema>;
 
 export const seedHero = {
   headline: {
-    az: "byismayilov gözəllik salonu",
-    ru: "Салон красоты byismayilov",
-    en: "byismayilov beauty salon",
+    az: "Saç rəngləmə və kəsim",
+    ru: "Окрашивание и стрижки",
+    en: "Hair colouring and cuts",
   },
   subline: null,
   ctaLabel: { az: "Onlayn qeydiyyat", ru: "Онлайн-запись", en: "Book online" },
