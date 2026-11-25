@@ -38,17 +38,19 @@ export function MasterShowcase({
                 <span
                   aria-hidden="true"
                   className={cx(
-                    "bg-blush absolute -top-4 bottom-8 hidden w-4/5 rounded-t-full md:block",
-                    flip ? "-right-6" : "-left-6",
+                    "bg-blush arch-portrait absolute inset-0 hidden -translate-y-6 md:block",
+                    flip ? "translate-x-6" : "-translate-x-6",
                   )}
                 />
-                <div className="rounded-b-card bg-champagne relative aspect-[4/5] overflow-clip rounded-t-full">
+                <div className="bg-champagne arch-portrait relative aspect-[4/5] overflow-clip">
                   {master.photo ? (
                     <Image
                       src={master.photo.src}
                       alt={master.photo.alt}
                       fill
                       sizes="(min-width: 768px) 40vw, 100vw"
+                      loading={index === 0 ? "eager" : "lazy"}
+                      fetchPriority={index === 0 ? "high" : undefined}
                       placeholder={master.photo.blurDataURL ? "blur" : "empty"}
                       blurDataURL={master.photo.blurDataURL ?? undefined}
                       className="object-cover object-[50%_30%]"

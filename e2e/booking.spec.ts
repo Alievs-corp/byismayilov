@@ -40,6 +40,17 @@ test("a visitor books online and the salon sees it in the admin inbox", async ({
   await form.locator('button[type="submit"]').click();
   await expect(page.locator("[data-booking-success]")).toBeVisible();
 
+  const mailpit = process.env.MAILPIT_URL ?? "http://localhost:8025";
+  await expect
+    .poll(
+      async () => {
+        const response = await fetch(`${mailpit}/api/v1/search?query=${encodeURIComponent(run)}`);
+        return ((await response.json()) as { messages: unknown[] }).messages.length;
+      },
+      { timeout: 15_000 },
+    )
+    .toBeGreaterThan(0);
+
   await signIn(page);
   const badge = page.locator('[data-sidebar="menu-badge"]');
   await expect(badge).toBeVisible();

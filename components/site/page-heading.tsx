@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { cx } from "@/lib/cx";
 import type { BreadcrumbItem } from "@/lib/seo/json-ld";
 
 import { Breadcrumbs } from "./breadcrumbs";
@@ -28,7 +29,12 @@ export function PageHeading({
     <header className="page-heading">
       <div className="relative container-page pt-6 pb-14 lg:pb-24">
         <Breadcrumbs items={breadcrumbs} label={breadcrumbLabel} />
-        <div className="gap-x-column mt-10 grid gap-y-6 lg:mt-20 lg:grid-cols-12">
+        <div
+          className={cx(
+            "gap-x-column mt-10 grid gap-y-6 lg:mt-20 lg:grid-cols-12",
+            ornament ? "lg:grid-rows-[auto_1fr]" : null,
+          )}
+        >
           <div className="min-w-0 lg:col-span-8">
             {eyebrow && eyebrow.toLocaleLowerCase() !== title.toLocaleLowerCase() ? (
               <p className="text-label text-caramel-ink mb-5 uppercase">{eyebrow}</p>
@@ -36,7 +42,7 @@ export function PageHeading({
             <FitHeading text={title} lang={lang} />
           </div>
           {ornament ? (
-            <div className="hidden items-end justify-end lg:col-span-3 lg:col-start-10 lg:flex">
+            <div className="hidden items-end justify-end lg:col-span-3 lg:col-start-10 lg:row-span-2 lg:flex">
               {ornament}
             </div>
           ) : null}

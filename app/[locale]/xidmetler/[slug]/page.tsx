@@ -268,7 +268,7 @@ export default async function ServicePage({ params }: PageProps<"/[locale]/xidme
                 }
               />
             </div>
-            <div className="mt-10">
+            <div className="container-page mt-10">
               <ServiceRail id="related-services" services={related} locale={locale} dict={dict} />
             </div>
           </section>

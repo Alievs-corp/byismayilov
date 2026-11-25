@@ -73,11 +73,7 @@ export default async function BookingPage({ searchParams }: PageProps<"/[locale]
         ) : null}
       </PageHeading>
       <div className="container-page pt-10 pb-section lg:pt-14">
-        <div className="gap-x-column relative grid gap-y-10 lg:grid-cols-12">
-          <Glow
-            name="orb-light"
-            className="pointer-events-none absolute top-1/2 left-[52%] z-0 hidden w-[26rem] -translate-y-1/2 lg:block"
-          />
+        <div className="gap-x-column grid gap-y-10 lg:grid-cols-12">
           <div className="rounded-card bg-cream relative z-10 border border-line p-6 sm:p-10 lg:col-span-8 lg:p-12">
             <BookingPanel
               locale={locale}
@@ -102,11 +98,15 @@ export default async function BookingPage({ searchParams }: PageProps<"/[locale]
                 ))}
               </ol>
               <p className="mt-8 border-t border-line pt-6 text-small">{dict.booking.sideNote}</p>
-              <div className="mt-10 hidden lg:block">
+              <div className="relative mt-10 hidden lg:block">
+                <Glow
+                  name="orb-light"
+                  className="top-1/2 left-1/2 w-[22rem] -translate-x-1/2 -translate-y-1/2 opacity-50"
+                />
                 <Ornament
                   name="magnolia"
                   width={{ base: 200, lg: 240 }}
-                  className="text-caramel-ink"
+                  className="text-caramel-ink relative"
                 />
               </div>
             </div>
