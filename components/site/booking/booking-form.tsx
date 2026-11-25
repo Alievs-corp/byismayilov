@@ -4,6 +4,14 @@ import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } fr
 
 import { DangerIcon } from "@/components/icons/iconsax";
 import { button } from "@/components/site/button";
+import {
+  choiceChip,
+  choiceInput,
+  fieldControl,
+  fieldLabel,
+  selectControl,
+  textareaControl,
+} from "@/components/site/form-styles";
 import type { Locale } from "@/lib/i18n/config";
 import { formatPhoneInput } from "@/lib/phone";
 import { bookingHoneypotField } from "@/lib/validation/booking-honeypot";
@@ -115,7 +123,7 @@ function FormField({
 }) {
   return (
     <div className="flex flex-col">
-      <label htmlFor={id} className="text-small font-medium">
+      <label htmlFor={id} className={fieldLabel}>
         {label}
         {required ? (
           <>
@@ -139,9 +147,6 @@ function FormField({
     </div>
   );
 }
-
-const inputClass =
-  "mt-2 h-12 w-full rounded-xs border border-line-strong bg-white px-4 text-base hover:border-ink aria-invalid:border-danger";
 
 export function BookingForm({
   locale,
@@ -278,7 +283,7 @@ export function BookingForm({
         tabIndex={-1}
         role="status"
         data-booking-success=""
-        className="border border-line p-6 outline-none"
+        className="rounded-card bg-cream p-6 outline-none sm:p-10"
       >
         <h2 className="text-h3">{labels.successTitle}</h2>
         <p className="text-ink-muted mt-3">{labels.successBody}</p>
@@ -326,7 +331,7 @@ export function BookingForm({
             onChange={(event) => update("name", event.target.value)}
             aria-invalid={errors.name ? true : undefined}
             aria-describedby={describedBy("name")}
-            className={inputClass}
+            className={fieldControl}
           />
         </FormField>
         <FormField
@@ -348,7 +353,7 @@ export function BookingForm({
             onChange={(event) => update("phone", formatPhoneInput(event.target.value))}
             aria-invalid={errors.phone ? true : undefined}
             aria-describedby={describedBy("phone", true)}
-            className={inputClass}
+            className={fieldControl}
           />
         </FormField>
       </div>
@@ -358,23 +363,23 @@ export function BookingForm({
         aria-describedby={describedBy("serviceIds", true)}
         className="outline-none"
       >
-        <legend className="text-small font-medium">{labels.services}</legend>
+        <legend className={fieldLabel}>{labels.services}</legend>
         {groups.length ? (
           <div className="mt-2 flex flex-col gap-4">
             {groups.map((group) => (
               <div key={group.id}>
                 {group.name ? <p className="text-ink-muted text-small">{group.name}</p> : null}
-                <ul className="mt-1 grid gap-x-6 sm:grid-cols-2">
+                <ul className="mt-2 grid gap-2 sm:grid-cols-2">
                   {group.services.map((service) => (
                     <li key={service.id}>
-                      <label className="inline-flex min-h-11 items-center gap-3">
+                      <label className={choiceChip}>
                         <input
                           type="checkbox"
                           name="serviceIds"
                           value={service.id}
                           checked={values.serviceIds.includes(service.id)}
                           onChange={(event) => toggleService(service.id, event.target.checked)}
-                          className="size-5"
+                          className={choiceInput}
                         />
                         {service.name}
                       </label>
@@ -417,7 +422,7 @@ export function BookingForm({
               onChange={(event) => update("masterId", event.target.value)}
               aria-invalid={errors.masterId ? true : undefined}
               aria-describedby={describedBy("masterId")}
-              className={inputClass}
+              className={selectControl}
             >
               <option value="">{labels.anyMaster}</option>
               {masters.map((master) => (
@@ -444,7 +449,7 @@ export function BookingForm({
             onChange={(event) => update("preferredDate", event.target.value)}
             aria-invalid={errors.preferredDate ? true : undefined}
             aria-describedby={describedBy("preferredDate")}
-            className={inputClass}
+            className={fieldControl}
           />
         </FormField>
         <FormField id={id("timeWindow")} label={labels.time} requiredLabel={labels.required}>
@@ -453,7 +458,7 @@ export function BookingForm({
             name="timeWindow"
             value={values.timeWindow}
             onChange={(event) => update("timeWindow", event.target.value as TimeWindow)}
-            className={inputClass}
+            className={selectControl}
           >
             {timeOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -479,7 +484,7 @@ export function BookingForm({
           onChange={(event) => update("message", event.target.value)}
           aria-invalid={errors.message ? true : undefined}
           aria-describedby={describedBy("message")}
-          className="hover:border-ink aria-invalid:border-danger mt-2 w-full rounded-xs border border-line-strong bg-white px-4 py-3 text-base"
+          className={textareaControl}
         />
       </FormField>
       <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">

@@ -12,6 +12,7 @@ export function PageHeading({
   breadcrumbs,
   breadcrumbLabel,
   lang,
+  ornament,
   children,
 }: {
   title: string;
@@ -20,23 +21,35 @@ export function PageHeading({
   breadcrumbs: BreadcrumbItem[];
   breadcrumbLabel: string;
   lang?: string;
+  ornament?: ReactNode;
   children?: ReactNode;
 }) {
   return (
-    <header className="container-page pt-6 pb-12 lg:pb-20">
-      <Breadcrumbs items={breadcrumbs} label={breadcrumbLabel} />
-      <div className="gap-x-column mt-8 grid gap-y-4 lg:mt-14 lg:grid-cols-12">
-        {eyebrow && eyebrow.toLocaleLowerCase() !== title.toLocaleLowerCase() ? (
-          <p className="text-label text-accent-ink uppercase lg:col-span-3 lg:pt-4">{eyebrow}</p>
-        ) : null}
-        <div className="lg:col-span-9 lg:col-start-4">
-          <FitHeading text={title} lang={lang} />
-          {lead ? (
-            <div lang={lang} className="text-ink-muted mt-6 max-w-3xl text-lead">
-              {lead}
+    <header className="page-heading">
+      <div className="relative container-page pt-6 pb-14 lg:pb-24">
+        <Breadcrumbs items={breadcrumbs} label={breadcrumbLabel} />
+        <div className="gap-x-column mt-10 grid gap-y-6 lg:mt-20 lg:grid-cols-12">
+          <div className="min-w-0 lg:col-span-8">
+            {eyebrow && eyebrow.toLocaleLowerCase() !== title.toLocaleLowerCase() ? (
+              <p className="text-label text-caramel-ink mb-5 uppercase">{eyebrow}</p>
+            ) : null}
+            <FitHeading text={title} lang={lang} />
+          </div>
+          {ornament ? (
+            <div className="hidden items-end justify-end lg:col-span-3 lg:col-start-10 lg:flex">
+              {ornament}
             </div>
           ) : null}
-          {children}
+          {lead || children ? (
+            <div className="lg:col-span-6 lg:col-start-1">
+              {lead ? (
+                <div lang={lang} className="text-ink-muted max-w-2xl text-lead">
+                  {lead}
+                </div>
+              ) : null}
+              {children}
+            </div>
+          ) : null}
         </div>
       </div>
     </header>
