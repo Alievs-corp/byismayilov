@@ -45,7 +45,7 @@ out-of-focus light rather than a flat CSS gradient.
 
 ## 2. Type
 
-- **Display**: Noto Serif Display, variable weight 300 to 500, self-hosted in
+- **Display**: Noto Serif Display, variable weight 300 to 400, self-hosted in
   `assets/fonts/display-*.woff2`. High contrast with soft terminals. Used for
   `h1` to `h4`, the wordmark, prices in large callouts and quotes. Weight 400
   by default, 300 for the giant ghost wordmark and the footer wordmark.
@@ -137,12 +137,12 @@ the whole site:
 
 | Place                                              | Ornament                                                                     | Status     |
 | -------------------------------------------------- | ---------------------------------------------------------------------------- | ---------- |
-| Home services section head                         | `peony`, caramel-ink, 64 to 88px                                             | Done       |
+| Home services section head                         | `hair-strand`, caramel-ink, 96 to 140px                                      | Done       |
 | Home booking band                                  | `hair-wave` champagne + `glow-wide-dark` (the one ambient float)             | Done       |
 | Footer top edge, every page                        | `eucalyptus` mask, champagne at 38%                                          | Done       |
 | Empty states and 404                               | `blossom-spray`, caramel-ink                                                 | Done       |
 | `/qeydiyyat` side column, desktop only (>= 1024px) | `magnolia` + `glow-orb-light` behind the form card edge, never behind fields | Page agent |
-| `/ustalar` page head                               | `hair-strand` through the `PageHeading` `ornament` slot                      | Page agent |
+| `/ustalar` page head                               | `peony` through the `PageHeading` `ornament` slot, 120 to 160px              | Page agent |
 
 Never behind body text, prices or form fields, never in the admin, never
 repeated inside card grids, never more than one per section. `sparkle` and
@@ -163,7 +163,20 @@ repeated inside card grids, never more than one per section. `sparkle` and
 - Ornaments are absolutely positioned or sit in fixed size cells with an
   aspect ratio, so they never shift layout.
 
-## 7. Do and don't
+## 7. Performance notes
+
+- The hero photo is the LCP element: `loading="eager"`, `fetchPriority="high"`,
+  `quality={60}` (`images.qualities` allows 60 and 75). Do not use the
+  deprecated `priority` prop.
+- Home sections below the hero carry `defer-render` (`content-visibility:
+auto`), so their images and paint wait until they approach the viewport.
+- Inline ornaments cost HTML twice (markup and RSC payload). Prefer the small
+  line ornaments on shared or heavy pages; large ones (peony, magnolia) only
+  on the one page that shows them. Path coordinates are rounded by
+  `pnpm ornaments:build`.
+- The display font is subset to weights 300 to 400; use 400 for headings.
+
+## 8. Do and don't
 
 Do:
 
@@ -185,7 +198,7 @@ Don't (banned looks):
 - Decorative animation that loops, carries no information or animates layout
   properties.
 
-## 8. Local screenshots with real photos
+## 9. Local screenshots with real photos
 
 `pnpm db:seed:local-media` (local only) uploads the photos in
 `LOCAL_MEDIA_DIR` to the local bucket and fills the gallery, the master (only

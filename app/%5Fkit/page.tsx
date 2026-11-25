@@ -70,11 +70,11 @@ const type = [
 ] as const;
 
 const ornaments: { name: OrnamentName; width: number; place: string }[] = [
-  { name: "peony", width: 120, place: "Home services section head (done)" },
+  { name: "hair-strand", width: 240, place: "Home services section head (done)" },
   { name: "hair-wave", width: 300, place: "Home booking band (done)" },
   { name: "blossom-spray", width: 150, place: "Empty states and 404 (done)" },
   { name: "magnolia", width: 150, place: "/qeydiyyat side column, desktop only (page agent)" },
-  { name: "hair-strand", width: 240, place: "/ustalar page head ornament slot (page agent)" },
+  { name: "peony", width: 120, place: "/ustalar page head ornament slot (page agent)" },
   { name: "sparkle", width: 48, place: "Logo mark echo only" },
   { name: "asterisk", width: 48, place: "Spare; one list bullet at most" },
 ];
@@ -115,7 +115,7 @@ export default async function KitPage() {
         lead={<p>Tokens, type, components and ornaments of the public site. Dev only.</p>}
         breadcrumbs={[{ label: "Kit", href: "/_kit" }]}
         breadcrumbLabel={dict.common.breadcrumb}
-        ornament={<Ornament name="hair-strand" width={{ base: 200, lg: 260 }} />}
+        ornament={<Ornament name="hair-wave" width={{ base: 200, lg: 300 }} />}
       />
       <div className="container-page pb-section">
         <Block id="kit-colours" title="Colour">
@@ -268,9 +268,9 @@ export default async function KitPage() {
             title="Xidmətlər və qiymətlər"
             ornament={
               <Ornament
-                name="peony"
-                width={{ base: 64, lg: 88 }}
-                ink={1}
+                name="hair-strand"
+                width={{ base: 96, lg: 140 }}
+                ink={1.2}
                 className="text-caramel-ink"
               />
             }

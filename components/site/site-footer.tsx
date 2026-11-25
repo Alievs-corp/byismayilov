@@ -70,7 +70,7 @@ export async function SiteFooter({ locale, dict }: { locale: Locale; dict: Dicti
     >
       <MaskOrnament
         name="eucalyptus"
-        width={{ base: 190, md: 300, lg: 380 }}
+        width={{ base: 190, md: 300, lg: 340 }}
         className="footer-ornament"
       />
       <div className="footer-grid gap-x-column relative container-page grid gap-y-12 pb-12 md:grid-cols-8 lg:grid-cols-12">

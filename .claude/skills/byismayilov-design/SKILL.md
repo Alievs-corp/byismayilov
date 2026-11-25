@@ -27,10 +27,10 @@ server (port 3030) to see every token and component rendered.
    the dark part of the hero field.
 5. **Ornaments.** At most one per section, about five on the whole site,
    never behind text, prices or fields, never in card grids, never in the
-   admin. Already placed: home services head (peony), booking band
+   admin. Already placed: home services head (hair-strand), booking band
    (hair-wave + glow), footer (eucalyptus), empty states and 404
    (blossom-spray). Left for page work: `/qeydiyyat` side column on desktop
-   (magnolia + `glow-orb-light`), `/ustalar` page head (hair-strand via
+   (magnolia + `glow-orb-light`), `/ustalar` page head (peony via
    `PageHeading ornament`). Do not add others without removing one.
 6. **Motion.** One-shot reveals only (`data-reveal`, `data-ornament`); no new
    loops; transform and opacity; reduced motion shows the final state.
