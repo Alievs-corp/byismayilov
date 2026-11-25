@@ -71,16 +71,16 @@ export default async function CmsPage({ params }: PageProps<"/[locale]/[slug]">)
       />
       {page.cover ? (
         <div className="container-page">
-          <Image
-            src={page.cover.src}
-            alt={page.cover.alt}
-            width={page.cover.width}
-            height={page.cover.height}
-            sizes={`min(100vw, ${page.cover.width}px)`}
-            loading="eager"
-            className="h-auto w-full"
-            style={{ maxWidth: page.cover.width }}
-          />
+          <div className="rounded-card bg-soft relative aspect-[4/3] overflow-clip sm:aspect-[16/9] lg:aspect-[21/9]">
+            <Image
+              src={page.cover.src}
+              alt={page.cover.alt}
+              fill
+              sizes="(min-width: 1760px) 1664px, calc(100vw - 2rem)"
+              loading="eager"
+              className="object-cover"
+            />
+          </div>
         </div>
       ) : null}
       {page.content ? (

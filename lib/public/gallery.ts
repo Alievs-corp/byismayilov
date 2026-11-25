@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, eq, inArray, type SQL } from "drizzle-orm";
+import { and, asc, eq, inArray, isNotNull, type SQL } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 
 import { publicTags } from "@/lib/cache/tags";
@@ -26,10 +26,14 @@ export type PublicGalleryItem = {
 
 export type GalleryFilter = { id: string; name: string; slug: string };
 
+export const beforeAfterSlug = "evvel-sonra";
+
 export type PublicGallery = {
   items: PublicGalleryItem[];
   filters: GalleryFilter[];
   active: GalleryFilter | null;
+  hasPairs: boolean;
+  pairsOnly: boolean;
 };
 
 async function galleryCategories(locale: Locale): Promise<(GalleryFilter & { used: boolean })[]> {
@@ -72,11 +76,20 @@ export async function queryGallery(
   const filters = categories
     .filter((category) => category.used)
     .map(({ id, name, slug }) => ({ id, name, slug }));
-  const active = categorySlug
-    ? (filters.find((filter) => filter.slug === categorySlug) ?? null)
-    : null;
+  const [pair] = await db
+    .select({ id: galleryItems.id })
+    .from(galleryItems)
+    .where(and(eq(galleryItems.isActive, true), isNotNull(galleryItems.beforeMediaId)))
+    .limit(1);
+  const hasPairs = Boolean(pair);
+  const pairsOnly = hasPairs && categorySlug === beforeAfterSlug;
+  const active =
+    categorySlug && !pairsOnly
+      ? (filters.find((filter) => filter.slug === categorySlug) ?? null)
+      : null;
   const where: SQL[] = [eq(galleryItems.isActive, true)];
   if (active) where.push(eq(galleryItems.categoryId, active.id));
+  if (pairsOnly) where.push(isNotNull(galleryItems.beforeMediaId));
   const query = db
     .select()
     .from(galleryItems)
@@ -114,7 +127,7 @@ export async function queryGallery(
       },
     ];
   });
-  return { items, filters, active };
+  return { items, filters, active, hasPairs, pairsOnly };
 }
 
 export async function getGallery(

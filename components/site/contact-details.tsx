@@ -64,6 +64,26 @@ export function hasContactDetails(settings: SiteSettings): boolean {
   );
 }
 
+function handleOf(url: string): string {
+  try {
+    const [first] = new URL(url).pathname.split("/").filter(Boolean);
+    return first ? `@${first.replace(/^@/, "")}` : url;
+  } catch {
+    return url;
+  }
+}
+
+const rowShell = "border-line gap-x-column grid gap-y-2 border-b py-5 sm:grid-cols-[10rem_1fr]";
+
+function Row({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className={rowShell}>
+      <dt className="text-label text-ink-muted pt-1.5 uppercase">{label}</dt>
+      <dd className="flex flex-col items-start">{children}</dd>
+    </div>
+  );
+}
+
 export function ContactDetails({
   settings,
   locale,
@@ -76,95 +96,89 @@ export function ContactDetails({
   const address = settings.address ? pickLocale(settings.address, locale) : null;
   const hours = settings.workingHours ? pickLocale(settings.workingHours, locale) : null;
   const map = mapHref(settings);
+  const instagram = settings.socials.find((social) => social.network === "instagram");
+  const others = settings.socials.filter((social) => social.network !== "instagram");
   return (
-    <dl data-contact-details="" className="grid gap-6 sm:grid-cols-2">
+    <dl data-contact-details="" className="border-t border-line">
       {address ? (
-        <div>
-          <dt className="text-ink-muted text-small">{dict.contact.address}</dt>
-          <dd className="mt-1">
-            <span className="inline-flex items-start gap-3">
-              <LocationIcon size={20} className="mt-0.5 shrink-0" />
-              {address}
-            </span>
-            {map ? (
-              <a href={map} target="_blank" rel="noopener" className={`${row} ml-8 text-small`}>
-                {dict.contact.openMap}
-                <ExportSquareIcon size={16} />
-              </a>
-            ) : null}
-          </dd>
-        </div>
+        <Row label={dict.contact.address}>
+          <span className="font-display text-h3">{address}</span>
+          {map ? (
+            <a href={map} target="_blank" rel="noopener" className={`${row} text-small`}>
+              <LocationIcon size={20} className="text-caramel-ink shrink-0" />
+              {dict.contact.openMap}
+              <ExportSquareIcon size={16} />
+            </a>
+          ) : null}
+        </Row>
       ) : null}
-      {settings.phones.length || settings.whatsappNumber ? (
-        <div>
-          <dt className="text-ink-muted text-small">{dict.contact.phone}</dt>
-          <dd className="mt-1 flex flex-col">
-            {settings.phones.map((phone) => (
-              <a key={phone.number} href={telHref(phone.number)} className={row}>
-                <CallIcon size={20} className="shrink-0" />
-                <span>
-                  <span className="text-ink-muted">{pickLocale(phone.label, locale)}: </span>
-                  <span className="tabular">{formatAzerbaijaniPhone(phone.number)}</span>
-                </span>
-              </a>
-            ))}
-            {settings.whatsappNumber ? (
+      {settings.phones.length ? (
+        <Row label={dict.contact.phone}>
+          {settings.phones.map((phone) => (
+            <a key={phone.number} href={telHref(phone.number)} className={row}>
+              <CallIcon size={20} className="text-caramel-ink shrink-0" />
+              <span className="tabular font-display text-h4">
+                {formatAzerbaijaniPhone(phone.number)}
+              </span>
+            </a>
+          ))}
+        </Row>
+      ) : null}
+      {settings.whatsappNumber ? (
+        <Row label={dict.contact.whatsappLabel}>
+          <a
+            href={whatsappHref(settings.whatsappNumber)}
+            target="_blank"
+            rel="noopener"
+            className={row}
+          >
+            <WhatsappIcon size={20} className="text-caramel-ink shrink-0" />
+            {dict.contact.whatsapp}
+          </a>
+        </Row>
+      ) : null}
+      {settings.emails.length ? (
+        <Row label={dict.contact.email}>
+          {settings.emails.map((email) => (
+            <a key={email} href={mailtoHref(email)} className={`${row} break-all`}>
+              <MailIcon size={20} className="text-caramel-ink shrink-0" />
+              {email}
+            </a>
+          ))}
+        </Row>
+      ) : null}
+      {hours ? (
+        <Row label={dict.contact.hours}>
+          <span className="inline-flex items-start gap-3 py-2 whitespace-pre-line">
+            <ClockIcon size={20} className="text-caramel-ink mt-0.5 shrink-0" />
+            {hours}
+          </span>
+        </Row>
+      ) : null}
+      {instagram || others.length ? (
+        <Row label={dict.contact.socials}>
+          {instagram ? (
+            <a href={instagram.url} target="_blank" rel="noopener" className={row}>
+              <InstagramIcon size={20} className="text-caramel-ink shrink-0" />
+              {handleOf(instagram.url)}
+            </a>
+          ) : null}
+          {others.map((social) => {
+            const Icon = socialIcons[social.network];
+            return (
               <a
-                href={whatsappHref(settings.whatsappNumber)}
+                key={social.network}
+                href={social.url}
                 target="_blank"
                 rel="noopener"
                 className={row}
               >
-                <WhatsappIcon size={20} className="shrink-0" />
-                {dict.contact.whatsapp}
+                <Icon size={20} className="text-caramel-ink shrink-0" />
+                {socialNetworkLabels[social.network]}
               </a>
-            ) : null}
-          </dd>
-        </div>
-      ) : null}
-      {settings.emails.length ? (
-        <div>
-          <dt className="text-ink-muted text-small">{dict.contact.email}</dt>
-          <dd className="mt-1 flex flex-col">
-            {settings.emails.map((email) => (
-              <a key={email} href={mailtoHref(email)} className={`${row} break-all`}>
-                <MailIcon size={20} className="shrink-0" />
-                {email}
-              </a>
-            ))}
-          </dd>
-        </div>
-      ) : null}
-      {hours ? (
-        <div>
-          <dt className="text-ink-muted text-small">{dict.contact.hours}</dt>
-          <dd className="mt-1 inline-flex items-start gap-3 whitespace-pre-line">
-            <ClockIcon size={20} className="mt-0.5 shrink-0" />
-            {hours}
-          </dd>
-        </div>
-      ) : null}
-      {settings.socials.length ? (
-        <div>
-          <dt className="text-ink-muted text-small">{dict.contact.socials}</dt>
-          <dd className="mt-1 flex flex-wrap gap-2">
-            {settings.socials.map((social) => {
-              const Icon = socialIcons[social.network];
-              return (
-                <a
-                  key={social.network}
-                  href={social.url}
-                  target="_blank"
-                  rel="noopener"
-                  aria-label={socialNetworkLabels[social.network]}
-                  className="inline-flex size-11 items-center justify-center rounded-full border border-line-strong"
-                >
-                  <Icon size={20} />
-                </a>
-              );
-            })}
-          </dd>
-        </div>
+            );
+          })}
+        </Row>
       ) : null}
     </dl>
   );

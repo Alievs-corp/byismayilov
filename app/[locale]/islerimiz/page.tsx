@@ -3,11 +3,11 @@ import { connection } from "next/server";
 
 import { ChipNav } from "@/components/site/chip-nav";
 import { EmptyState } from "@/components/site/empty-state";
-import { GalleryGrid } from "@/components/site/gallery-grid";
+import { GalleryBrowser } from "@/components/site/gallery-browser";
 import { PageHeading } from "@/components/site/page-heading";
 import { localePath } from "@/lib/i18n/config";
 import { getRequestDictionary } from "@/lib/i18n/server";
-import { getGallery } from "@/lib/public/gallery";
+import { beforeAfterSlug, getGallery } from "@/lib/public/gallery";
 import { staticPaths } from "@/lib/public/slug";
 import { routes } from "@/lib/routes";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -52,13 +52,28 @@ export default async function GalleryPage({ searchParams }: PageProps<"/[locale]
           { label: dict.gallery.title, href: path },
         ]}
       />
-      <div className="container-page flex flex-col gap-10 pb-section">
-        {gallery.filters.length > 1 ? (
+      <div className="container-page flex flex-col gap-10 pt-10 pb-section">
+        {gallery.filters.length + (gallery.hasPairs ? 1 : 0) > 1 ? (
           <ChipNav
             label={dict.gallery.filter}
             heading={dict.gallery.filter}
             chips={[
-              { key: "all", label: dict.gallery.all, href: path, current: !gallery.active },
+              {
+                key: "all",
+                label: dict.gallery.all,
+                href: path,
+                current: !gallery.active && !gallery.pairsOnly,
+              },
+              ...(gallery.hasPairs
+                ? [
+                    {
+                      key: beforeAfterSlug,
+                      label: dict.gallery.beforeAfter,
+                      href: `${path}?kateqoriya=${beforeAfterSlug}`,
+                      current: gallery.pairsOnly,
+                    },
+                  ]
+                : []),
               ...gallery.filters.map((filter) => ({
                 key: filter.id,
                 label: filter.name,
@@ -69,7 +84,20 @@ export default async function GalleryPage({ searchParams }: PageProps<"/[locale]
           />
         ) : null}
         {gallery.items.length ? (
-          <GalleryGrid items={gallery.items} dict={dict} />
+          <GalleryBrowser
+            items={gallery.items}
+            labels={{
+              before: dict.gallery.before,
+              after: dict.gallery.after,
+              open: dict.gallery.open,
+              close: dict.gallery.close,
+              previous: dict.common.previous,
+              next: dict.common.next,
+              dialog: dict.gallery.dialog,
+              counter: dict.gallery.counter,
+              video: dict.gallery.video,
+            }}
+          />
         ) : (
           <EmptyState
             title={dict.gallery.empty}

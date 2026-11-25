@@ -39,7 +39,10 @@
     "openMap": "Open in maps",
     "whatsapp": "Message us on WhatsApp",
     "socials": "Social media",
-    "empty": "Contact details will be added soon."
+    "empty": "Contact details will be added soon.",
+    "whatsappLabel": "WhatsApp",
+    "findTitle": "How to find us",
+    "findBody": "The salon is at {address}. Open the map to get directions on your phone."
   },
   "footer": {
     "contacts": "Contact",
@@ -94,7 +97,9 @@
     "empty": "Information about our masters will be added soon.",
     "services": "Services",
     "instagram": "Instagram",
-    "book": "Book with this master"
+    "book": "Book with this master",
+    "label": "Master",
+    "position": "Master {n} / {total}"
   },
   "gallery": {
     "title": "Our work",
@@ -103,7 +108,13 @@
     "all": "All",
     "filter": "By category",
     "before": "Before",
-    "after": "After"
+    "after": "After",
+    "beforeAfter": "Before and after",
+    "open": "Enlarge",
+    "close": "Close",
+    "dialog": "Photo viewer",
+    "counter": "{n} / {total}",
+    "video": "Video clip"
   },
   "reviews": {
     "title": "Reviews",

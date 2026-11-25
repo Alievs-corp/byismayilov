@@ -45,14 +45,19 @@ describe("public dictionaries", () => {
   });
 
   it("translate Russian and English rather than copying Azerbaijani", () => {
+    const sameInEveryLanguage = new Set([
+      "meta.siteName",
+      "services.priceExact",
+      "masters.instagram",
+      "contact.whatsappLabel",
+      "gallery.counter",
+    ]);
     const base = flatten(az);
     for (const locale of ["ru", "en"] as const) {
       const flat = flatten(dictionaries[locale] as Tree);
       const copied = Object.keys(flat).filter(
         (key) =>
-          flat[key] === base[key] &&
-          !key.startsWith("locales.") &&
-          !/^(meta\.siteName|services\.priceExact|masters\.instagram)$/.test(key),
+          flat[key] === base[key] && !key.startsWith("locales.") && !sameInEveryLanguage.has(key),
       );
       expect(copied, locale).toEqual([]);
     }

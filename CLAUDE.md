@@ -105,7 +105,7 @@ Conventional Commits, in English:
 - Never use `--no-verify`. If a hook fails, fix the cause
 - Long commit or pull request bodies go into a file (`-F file`, `--body-file`),
   never a long heredoc
-- Agent commits end with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`;
+- No `Co-Authored-By` trailer for AI agents in commit or squash-merge messages;
   agent pull request bodies end with
   `🤖 Generated with [Claude Code](https://claude.com/claude-code)`
 
