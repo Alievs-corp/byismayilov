@@ -37,7 +37,11 @@ export function ArticleBody({
           </ol>
         </nav>
       ) : null}
-      <Reveal className="lg:col-span-7 lg:col-start-5">
+      <Reveal
+        className={
+          headings.length >= 3 ? "lg:col-span-7 lg:col-start-5" : "lg:col-span-8 lg:col-start-3"
+        }
+      >
         <div lang={lang}>
           <RichText
             doc={doc}

@@ -39,7 +39,10 @@
     "openMap": "Xəritədə aç",
     "whatsapp": "WhatsApp ilə yazın",
     "socials": "Sosial şəbəkələr",
-    "empty": "Əlaqə məlumatları tezliklə əlavə olunacaq."
+    "empty": "Əlaqə məlumatları tezliklə əlavə olunacaq.",
+    "whatsappLabel": "WhatsApp",
+    "findTitle": "Bizi necə tapmaq olar",
+    "findBody": "Salon {address} ünvanındadır. Marşrutu telefonunuzda açmaq üçün xəritə düyməsindən istifadə edin."
   },
   "footer": {
     "contacts": "Əlaqə",
@@ -94,7 +97,9 @@
     "empty": "Ustalar haqqında məlumat tezliklə əlavə olunacaq.",
     "services": "Xidmətləri",
     "instagram": "Instagram",
-    "book": "Bu ustaya yazıl"
+    "book": "Bu ustaya yazıl",
+    "label": "Usta",
+    "position": "Usta {n} / {total}"
   },
   "gallery": {
     "title": "İşlərimiz",
@@ -103,7 +108,13 @@
     "all": "Hamısı",
     "filter": "Kateqoriya üzrə",
     "before": "Əvvəl",
-    "after": "Sonra"
+    "after": "Sonra",
+    "beforeAfter": "Əvvəl və sonra",
+    "open": "Böyüt",
+    "close": "Bağla",
+    "dialog": "Şəkil görüntüləyici",
+    "counter": "{n} / {total}",
+    "video": "Video"
   },
   "reviews": {
     "title": "Rəylər",

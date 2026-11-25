@@ -86,17 +86,19 @@ export default async function PostPage({ params }: PageProps<"/[locale]/bloq/[sl
         </PageHeading>
         {post.image ? (
           <div className="container-page">
-            <Image
-              src={post.image.src}
-              alt={post.image.alt}
-              width={post.image.width}
-              height={post.image.height}
-              sizes="(min-width: 1760px) 1664px, calc(100vw - 2.5rem)"
-              fetchPriority="high"
-              loading="eager"
-              className="bg-soft h-auto w-full"
-              style={{ maxWidth: post.image.width }}
-            />
+            <div className="rounded-card bg-soft relative aspect-[4/3] overflow-clip sm:aspect-[16/9] lg:aspect-[21/9]">
+              <Image
+                src={post.image.src}
+                alt={post.image.alt}
+                fill
+                sizes="(min-width: 1760px) 1664px, calc(100vw - 2rem)"
+                fetchPriority="high"
+                loading="eager"
+                placeholder={post.image.blurDataURL ? "blur" : "empty"}
+                blurDataURL={post.image.blurDataURL ?? undefined}
+                className="object-cover object-[50%_40%]"
+              />
+            </div>
           </div>
         ) : null}
         {post.content ? (

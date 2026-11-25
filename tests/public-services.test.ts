@@ -324,6 +324,13 @@ describe("masters, gallery and reviews", () => {
       expect.arrayContaining([ids.root, ids.child]),
     );
 
+    expect(gallery.hasPairs).toBe(true);
+    const pairs = await queryGallery("az", "evvel-sonra");
+    expect(pairs.pairsOnly).toBe(true);
+    expect(pairs.active).toBeNull();
+    expect(pairs.items.length).toBeGreaterThan(0);
+    expect(pairs.items.every((item) => item.before !== null)).toBe(true);
+
     const filtered = await queryGallery("az", slug("Child"));
     expect(filtered.active?.id).toBe(ids.child);
     expect(filtered.items.every((item) => item.categoryId === ids.child)).toBe(true);

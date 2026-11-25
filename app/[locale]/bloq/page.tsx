@@ -4,8 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 
-import { ArrowDownIcon } from "@/components/icons/iconsax";
-import { button } from "@/components/site/button";
+import { ArrowDownIcon, ArrowRightIcon } from "@/components/icons/iconsax";
+import { button, buttonArrow, textLink } from "@/components/site/button";
 import { EmptyState } from "@/components/site/empty-state";
 import { PageHeading } from "@/components/site/page-heading";
 import { localePath } from "@/lib/i18n/config";
@@ -42,6 +42,7 @@ export default async function BlogPage({ searchParams }: PageProps<"/[locale]/bl
   const { items, total } = await getPostPage(locale, page);
   if (page > 1 && (page - 1) * postsPerPage >= total) notFound();
   const path = localePath(locale, routes.blog());
+  const [featured, ...rest] = items;
 
   return (
     <>
@@ -54,49 +55,106 @@ export default async function BlogPage({ searchParams }: PageProps<"/[locale]/bl
           { label: dict.blog.title, href: path },
         ]}
       />
-      <div className="container-page pb-section">
+      <div className="container-page py-section">
         {items.length ? (
           <>
-            <ul
-              data-reveal-group=""
-              className="gap-x-column grid gap-y-14 border-t border-line pt-12 sm:grid-cols-2 lg:grid-cols-3"
-            >
-              {items.map((post) => (
-                <li key={post.id} data-reveal="">
-                  <article className="group/card relative flex h-full flex-col">
-                    {post.image ? (
-                      <div className="bg-soft relative aspect-video overflow-clip">
-                        <Image
-                          src={post.image.src}
-                          alt={post.image.alt}
-                          fill
-                          sizes="(min-width: 1024px) 46vw, (min-width: 640px) 70vw, 140vw"
-                          className="card-photo object-cover"
-                        />
-                      </div>
-                    ) : null}
-                    <time
-                      dateTime={post.publishedAt}
-                      className="text-label text-grey tabular mt-5 uppercase"
+            {featured ? (
+              <article
+                data-reveal=""
+                className="group/card gap-x-column relative grid items-center gap-y-6 pb-14 lg:grid-cols-12 lg:pb-20"
+              >
+                {featured.image ? (
+                  <div className="rounded-card bg-soft relative aspect-[4/3] overflow-clip lg:col-span-7">
+                    <Image
+                      src={featured.image.src}
+                      alt={featured.image.alt}
+                      fill
+                      sizes="(min-width: 1024px) 56vw, 100vw"
+                      loading="eager"
+                      placeholder={featured.image.blurDataURL ? "blur" : "empty"}
+                      blurDataURL={featured.image.blurDataURL ?? undefined}
+                      className="card-photo object-cover"
+                    />
+                  </div>
+                ) : null}
+                <div
+                  className={
+                    featured.image
+                      ? "flex flex-col gap-5 lg:col-span-5"
+                      : "flex flex-col gap-5 lg:col-span-8"
+                  }
+                >
+                  <time
+                    dateTime={featured.publishedAt}
+                    className="text-label text-caramel-ink tabular uppercase"
+                  >
+                    {formatPostDate(featured.publishedAt, locale)}
+                  </time>
+                  <h2 className="text-safe text-h2">
+                    <Link
+                      href={featured.href}
+                      prefetch={false}
+                      className="after:absolute after:inset-0"
                     >
-                      {formatPostDate(post.publishedAt, locale)}
-                    </time>
-                    <h2 className="text-safe mt-2 text-h4">
-                      <Link
-                        href={post.href}
-                        prefetch={false}
-                        className="decoration-1 underline-offset-4 group-hover/card:underline after:absolute after:inset-0"
+                      {featured.title}
+                    </Link>
+                  </h2>
+                  {featured.excerpt ? (
+                    <p className="text-ink-muted max-w-xl text-lead">{featured.excerpt}</p>
+                  ) : null}
+                  <span className={`${textLink()} self-start`}>
+                    {dict.blog.read}
+                    <ArrowRightIcon size={20} className={buttonArrow} />
+                  </span>
+                </div>
+              </article>
+            ) : null}
+            {rest.length ? (
+              <ul
+                data-reveal-group=""
+                className="gap-x-column grid gap-y-14 border-t border-line pt-12 sm:grid-cols-2 lg:grid-cols-3"
+              >
+                {rest.map((post) => (
+                  <li key={post.id} data-reveal="">
+                    <article className="group/card relative flex h-full flex-col">
+                      {post.image ? (
+                        <div className="rounded-card bg-soft relative aspect-[4/3] overflow-clip">
+                          <Image
+                            src={post.image.src}
+                            alt={post.image.alt}
+                            fill
+                            sizes="(min-width: 1024px) 31vw, (min-width: 640px) 46vw, 92vw"
+                            placeholder={post.image.blurDataURL ? "blur" : "empty"}
+                            blurDataURL={post.image.blurDataURL ?? undefined}
+                            className="card-photo object-cover"
+                          />
+                        </div>
+                      ) : null}
+                      <time
+                        dateTime={post.publishedAt}
+                        className="text-label text-caramel-ink tabular mt-5 uppercase"
                       >
-                        {post.title}
-                      </Link>
-                    </h2>
-                    {post.excerpt ? (
-                      <p className="text-ink-muted mt-3 line-clamp-3 text-small">{post.excerpt}</p>
-                    ) : null}
-                  </article>
-                </li>
-              ))}
-            </ul>
+                        {formatPostDate(post.publishedAt, locale)}
+                      </time>
+                      <h2 className="text-safe mt-2 text-h4">
+                        <Link
+                          href={post.href}
+                          prefetch={false}
+                          className="decoration-1 underline-offset-4 group-hover/card:underline after:absolute after:inset-0"
+                        >
+                          {post.title}
+                        </Link>
+                      </h2>
+                      {post.excerpt ? (
+                        <p className="text-ink-muted mt-3 line-clamp-3 text-small">
+                          {post.excerpt}
+                        </p>
+                      ) : null}
+                    </article>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
             <div className="mt-16 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
               {items.length < total ? (
                 <Link

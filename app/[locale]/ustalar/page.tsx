@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 
 import { EmptyState } from "@/components/site/empty-state";
-import { MasterCards } from "@/components/site/master-cards";
+import { Ornament } from "@/components/ornament/ornament";
+import { MasterShowcase } from "@/components/site/master-showcase";
 import { PageHeading } from "@/components/site/page-heading";
 import { localePath } from "@/lib/i18n/config";
 import { getRequestDictionary } from "@/lib/i18n/server";
@@ -41,14 +42,22 @@ export default async function MastersPage() {
         title={dict.masters.title}
         lead={<p>{dict.masters.description}</p>}
         breadcrumbLabel={dict.common.breadcrumb}
+        ornament={
+          <Ornament
+            name="peony"
+            width={{ base: 120, lg: 160 }}
+            reveal="draw"
+            className="text-caramel-ink"
+          />
+        }
         breadcrumbs={[
           { label: dict.common.home, href: localePath(locale) },
           { label: dict.masters.title, href: path },
         ]}
       />
-      <div className="container-page pb-section">
+      <div className="container-page py-section">
         {masters.length ? (
-          <MasterCards masters={masters} locale={locale} dict={dict} headingLevel={2} />
+          <MasterShowcase masters={masters} locale={locale} dict={dict} />
         ) : (
           <EmptyState
             title={dict.masters.empty}

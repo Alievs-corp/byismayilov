@@ -598,6 +598,35 @@
       color: var(--color-grey);
       font-variant-numeric: tabular-nums;
     }
+    p,
+    li {
+      font-size: var(--text-lead);
+      line-height: 1.75;
+    }
+    a {
+      color: var(--color-caramel-ink);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.2em;
+    }
+    a:hover {
+      color: var(--color-ink);
+    }
+    blockquote {
+      margin-block: 2.5rem;
+      padding-left: 1.5rem;
+      border-left: 2px solid var(--color-caramel);
+      font-family: var(--font-display);
+      font-size: var(--text-h4);
+      line-height: var(--text-h4--line-height);
+    }
+    blockquote p {
+      font-size: inherit;
+      line-height: inherit;
+    }
+    img {
+      border-radius: var(--radius-card);
+    }
     hr {
       margin-block: 3rem;
       border: 0;
