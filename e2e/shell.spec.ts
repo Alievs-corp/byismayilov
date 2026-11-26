@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 
 test("the menu button shows only while the header links are collapsed", async ({ page }) => {
   const menu = page.locator("header button[aria-controls='site-menu']");
@@ -47,4 +47,29 @@ test("the admin sign in page links back to the public site", async ({ page }) =>
   await expect(back).toBeVisible();
   await back.click();
   await page.waitForURL((url) => url.pathname === "/");
+});
+
+test("header links roll to the serif label without moving and keep one name", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/ustalar");
+  const nav = page.locator("header nav").first();
+  const current = nav.getByRole("link", { name: "Ustalar", exact: true });
+  const other = nav.getByRole("link", { name: "Xidmətlər", exact: true });
+  await expect(current).toHaveAttribute("aria-current", "page");
+  const links = nav.locator(".header-link");
+  const boxes = () =>
+    links.evaluateAll((items) => items.map((item) => item.getBoundingClientRect().toJSON()));
+  const spark = (link: Locator) =>
+    link.locator(".header-link-spark").evaluate((node) => getComputedStyle(node).opacity);
+  await expect.poll(() => spark(current)).toBe("1");
+  await expect.poll(() => spark(other)).toBe("0");
+
+  const before = await boxes();
+  await other.hover();
+  const serif = other.locator(".header-link-serif > span").last();
+  await expect
+    .poll(() => serif.evaluate((node) => getComputedStyle(node).transform))
+    .toBe("matrix(1, 0, 0, 1, 0, 0)");
+  await expect.poll(() => spark(other)).toBe("1");
+  expect(await boxes()).toEqual(before);
 });
