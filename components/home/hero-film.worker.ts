@@ -3,7 +3,8 @@ type Size = { width: number; height: number };
 type InitMessage = {
   type: "init";
   frames: string[];
-  decode: Size;
+  decode: Size | null;
+  key: { step: number; size: Size };
   ahead: number;
   behind: number;
 };
@@ -11,7 +12,7 @@ type InitMessage = {
 type InMessage =
   | InitMessage
   | { type: "seek"; position: number; direction: number }
-  | { type: "resize"; decode: Size; generation: number }
+  | { type: "resize"; decode: Size | null; generation: number }
   | { type: "visibility"; hidden: boolean };
 
 type Scope = {
@@ -22,15 +23,17 @@ type Scope = {
 const scope = globalThis as unknown as Scope;
 
 const passes = [8, 4, 2, 1];
-const maxFetches = 6;
-const maxDecodes = 2;
+const leadStrides = [4, 2, 1];
+const maxFetches = 4;
+const maxDecodes = 3;
 const leadFactor = 3;
 
 let config: InitMessage | null = null;
 let blobs: (Blob | null)[] = [];
 const fetching = new Set<number>();
-const decoding = new Set<number>();
+const decoding = new Set<string>();
 const sent = new Set<number>();
+const keysSent = new Set<number>();
 let position = 0;
 let direction = 1;
 let generation = 0;
@@ -74,8 +77,11 @@ function windowOrder(span: number): number[] {
 
 function nextToFetch(): number | null {
   if (!config) return null;
-  for (const index of windowOrder(leadFactor)) {
-    if (!blobs[index] && !fetching.has(index)) return index;
+  const lead = windowOrder(leadFactor);
+  for (const stride of leadStrides) {
+    for (const index of lead) {
+      if (index % stride === 0 && !blobs[index] && !fetching.has(index)) return index;
+    }
   }
   const count = config.frames.length;
   for (const step of passes) {
@@ -122,39 +128,75 @@ function pump() {
 function wanted(): number | null {
   for (const index of windowOrder(1)) {
     if (!inWindow(index)) continue;
-    if (blobs[index] && !sent.has(index) && !decoding.has(index)) return index;
+    if (blobs[index] && !sent.has(index) && !decoding.has(`f${index}`)) return index;
   }
   return null;
+}
+
+function wantedKey(): number | null {
+  if (!config) return null;
+  const step = config.key.step;
+  let best: number | null = null;
+  let bestDistance = Number.POSITIVE_INFINITY;
+  for (let index = 0; index < blobs.length; index += step) {
+    if (!blobs[index] || keysSent.has(index)) continue;
+    const distance = Math.abs(index - position);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      best = index;
+    }
+  }
+  return best;
+}
+
+function upload(bitmap: ImageBitmap): ImageBitmap {
+  if (typeof OffscreenCanvas === "undefined") return bitmap;
+  const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+  const context = canvas.getContext("2d", { alpha: false });
+  if (!context) return bitmap;
+  context.drawImage(bitmap, 0, 0);
+  bitmap.close();
+  return canvas.transferToImageBitmap();
+}
+
+function decodeOptions(size: Size | null): ImageBitmapOptions | undefined {
+  return size
+    ? { resizeWidth: size.width, resizeHeight: size.height, resizeQuality: "medium" }
+    : undefined;
 }
 
 function schedule() {
   if (!config || paused || failed) return;
   while (decoding.size < maxDecodes) {
-    const index = wanted();
+    let index = wanted();
+    let key = false;
+    if (index === null) {
+      index = wantedKey();
+      key = true;
+    }
     if (index === null) return;
     const blob = blobs[index];
     if (!blob) return;
-    const size = config.decode;
-    decoding.add(index);
-    sent.add(index);
+    const job = `${key ? "k" : "f"}${index}`;
+    decoding.add(job);
+    if (key) keysSent.add(index);
+    else sent.add(index);
     const started = performance.now();
     const jobGeneration = generation;
-    void createImageBitmap(blob, {
-      resizeWidth: size.width,
-      resizeHeight: size.height,
-      resizeQuality: "high",
-    })
+    const frameIndex = index;
+    void createImageBitmap(blob, decodeOptions(key ? config.key.size : config.decode))
+      .then(upload)
       .then((bitmap) => {
-        decoding.delete(index);
+        decoding.delete(job);
         decodedAny = true;
-        if (jobGeneration !== generation) {
+        if (!key && jobGeneration !== generation) {
           bitmap.close();
           return;
         }
         scope.postMessage(
           {
-            type: "frame",
-            index,
+            type: key ? "key" : "frame",
+            index: frameIndex,
             generation: jobGeneration,
             decodeMs: performance.now() - started,
             bitmap,
@@ -163,8 +205,9 @@ function schedule() {
         );
       })
       .catch(() => {
-        decoding.delete(index);
-        sent.delete(index);
+        decoding.delete(job);
+        if (key) keysSent.delete(frameIndex);
+        else sent.delete(frameIndex);
         failures += 1;
         if (!decodedAny && failures >= 2) {
           failed = true;
