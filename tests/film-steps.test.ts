@@ -1,24 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { dissolve, filmSettle } from "@/lib/motion/film-steps";
-
-describe("dissolve", () => {
-  it("cross-fades across the whole step when the step allows a full blend", () => {
-    expect(dissolve(1, 0.25)).toBe(0.25);
-    expect(dissolve(1, 0.75)).toBe(0.75);
-  });
-
-  it("switches at the middle of the step when no blend is allowed", () => {
-    expect(dissolve(0, 0.49)).toBe(0);
-    expect(dissolve(0, 0.5)).toBe(1);
-  });
-
-  it("confines a partial blend to the middle of the step", () => {
-    expect(dissolve(0.2, 0.3)).toBe(0);
-    expect(dissolve(0.2, 0.5)).toBeCloseTo(0.5);
-    expect(dissolve(0.2, 0.7)).toBe(1);
-  });
-});
+import { filmSettle } from "@/lib/motion/film-steps";
 
 function run(settle: ReturnType<typeof filmSettle>, targets: number[], start = 0, interval = 16) {
   return targets.map((target, index) => settle.goal(target, start + index * interval));

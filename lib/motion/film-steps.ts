@@ -1,9 +1,3 @@
-export function dissolve(width: number, fraction: number): number {
-  if (width >= 1) return fraction;
-  if (width <= 0) return fraction < 0.5 ? 0 : 1;
-  return Math.min(Math.max((fraction - (0.5 - width / 2)) / width, 0), 1);
-}
-
 export type FilmSettleOptions = {
   count: number;
   restDelay?: number;

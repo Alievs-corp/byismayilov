@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 
-import { dissolve, filmSettle } from "@/lib/motion/film-steps";
-import { frameBudget } from "@/lib/motion/frame-budget";
+import { filmSettle } from "@/lib/motion/film-steps";
+import { downloadedPlan, filmWindow, nearestFrame } from "@/lib/motion/film-window";
 import {
   clamp,
   documentTop,
@@ -27,55 +27,37 @@ export type HeroChapter = {
 
 type Size = { width: number; height: number };
 
-type Budget = { ahead: number; behind: number };
-
-type Step = [number, number, number];
-
-type Motion = { steps: Step[]; pace: number[] | null; blend: number[] | null };
-
-type Similarity = { scale: number; x: number; y: number };
+type Frame = { bitmap: ImageBitmap; generation: number };
 
 type FrameMessage =
   | {
-      type: "frame" | "key";
+      type: "frame";
       index: number;
       generation: number;
       decodeMs: number;
       bitmap: ImageBitmap;
     }
-  | { type: "progress"; loaded: number; bytes: number; total: number }
+  | { type: "progress"; index: number; loaded: number; bytes: number; total: number }
   | { type: "unsupported" };
 
 type NetworkInformation = { saveData?: boolean; effectiveType?: string };
 
-type Paint = {
-  mode: "none" | "same" | "exact" | "blend" | "nearest";
-  near: number | null;
-  next: number | null;
-  alpha: number;
-};
+type Paint = { mode: "none" | "same" | "exact" | "nearest"; near: number | null };
 
 type TraceEntry = Paint & { at: number; target: number; current: number; scroll: number };
 
-const budgets = {
-  wide: { ahead: 10, behind: 3 },
-  desktop: { ahead: 12, behind: 4 },
-  mobile: { ahead: 12, behind: 4 },
-  lowMemory: { ahead: 8, behind: 3 },
-} satisfies Record<string, Budget>;
+const memoryBudget = { wide: 192e6, desktop: 192e6, mobile: 96e6, lowMemory: 64e6 };
+const minFrames = 12;
+const maxFrames = 48;
 
 const headlineFade = 0.18;
 const ctaFade = 0.12;
 const underPanel = 0.35;
 const maxPixelRatio = 2;
 const wideThreshold = 1.08;
-const maxWarp = 3;
-const maxBridge = 4;
 const nativeDecode = 0.5;
-const keyStep = { normal: 4, lowMemory: 8 };
-const keyScale = 1 / 3;
 const settled = 0.002;
-const identity: Similarity = { scale: 1, x: 0, y: 0 };
+const velocityTau = 120;
 
 function constrained() {
   const nav = navigator as Navigator & { connection?: NetworkInformation; deviceMemory?: number };
@@ -113,64 +95,24 @@ function afterLoad(start: () => void) {
   };
 }
 
-function isStep(value: unknown): value is Step {
-  return (
-    Array.isArray(value) &&
-    value.length === 3 &&
-    value.every((part) => typeof part === "number" && Number.isFinite(part))
-  );
-}
-
-function isBlend(value: unknown, count: number): value is number[] {
-  return (
-    Array.isArray(value) &&
-    value.length === count - 1 &&
-    value.every((part) => typeof part === "number" && part >= 0 && part <= 1)
-  );
-}
-
-async function loadMotion(url: string, count: number, portrait: boolean): Promise<Motion | null> {
+async function loadPace(url: string, count: number): Promise<number[] | null> {
   const response = await fetch(url, { priority: "low" } as RequestInit);
   if (!response.ok) return null;
-  const data = (await response.json()) as {
-    motion?: unknown;
-    pace?: unknown;
-    blend?: unknown;
-    mobileMotion?: unknown;
-    mobileBlend?: unknown;
-  };
-  const ownSteps = portrait && Array.isArray(data.mobileMotion);
-  const steps = ownSteps ? data.mobileMotion : data.motion;
-  if (!Array.isArray(steps) || steps.length !== count - 1 || !steps.every(isStep)) return null;
-  const ownBlend = portrait ? data.mobileBlend : data.blend;
-  const blend = isBlend(ownBlend, count) ? ownBlend : null;
-  const pace =
-    Array.isArray(data.pace) &&
-    data.pace.length === count &&
-    data.pace.every(
+  const data = (await response.json()) as { pace?: unknown };
+  const pace = data.pace;
+  const valid =
+    Array.isArray(pace) &&
+    pace.length === count &&
+    pace.every(
       (value, index, list) =>
         typeof value === "number" && (index === 0 || value >= (list[index - 1] as number)),
-    )
-      ? (data.pace as number[])
-      : null;
-  return { steps, pace, blend };
+    );
+  return valid ? (pace as number[]) : null;
 }
 
 function sameSize(first: Size | null, second: Size | null) {
   if (!first || !second) return first === second;
   return first.width === second.width && first.height === second.height;
-}
-
-function compose(first: Similarity, second: Similarity): Similarity {
-  return {
-    scale: first.scale * second.scale,
-    x: second.scale * first.x + second.x,
-    y: second.scale * first.y + second.y,
-  };
-}
-
-function invert(value: Similarity): Similarity {
-  return { scale: 1 / value.scale, x: -value.x / value.scale, y: -value.y / value.scale };
 }
 
 function runFilm(
@@ -214,7 +156,7 @@ function runFilm(
     return tiers.desktop;
   })();
   const tierName = tier === tiers.wide ? "wide" : tier === tiers.mobile ? "mobile" : "desktop";
-  const budget = lowMemory ? budgets.lowMemory : budgets[tierName];
+  const budgetBytes = lowMemory ? memoryBudget.lowMemory : memoryBudget[tierName];
   const count = tier.count;
 
   const box = { top: 0, height: 0, filmEnd: 1, shift: 0 };
@@ -222,25 +164,32 @@ function runFilm(
   let context: CanvasRenderingContext2D | null = null;
   let canvasSize: Size = { width: 0, height: 0 };
   let decodeSize: Size | null = null;
-  const keys = new Map<number, ImageBitmap>();
+  let capacity = minFrames;
   let generation = 0;
-  const frames = new Map<number, ImageBitmap>();
+  const frames = new Map<number, Frame>();
   let worker: Worker | null = null;
-  let motion: Motion | null = null;
+  let pace: number[] | null = null;
   let current = 0;
   let drawnAt = Number.NaN;
+  let drawnFrame: number | null = null;
   let dirty = true;
-  let lastSeek = 0;
-  let lastSeekPosition = Number.NaN;
   let direction = 1;
+  let velocity = 0;
+  let lastLinear = Number.NaN;
+  let planKey = "";
+  let plan: number[] = [];
+  let stride = 1;
+  let received = 0;
+  const downloaded = new Uint8Array(count);
+  let downloadedVersion = 0;
+  let planSpan = { from: 0, to: 0 };
   let posterHidden = false;
   let pinActive = false;
   const written = { a: Number.NaN, cta: Number.NaN, top: Number.NaN, bottom: Number.NaN };
   const stats = { drawMs: [] as number[], decodeMs: [] as number[] };
-  const smoothness = frameBudget();
   const settle = filmSettle({ count });
   let trace: TraceEntry[] | null = null;
-  let painted: Paint = { mode: "none", near: null, next: null, alpha: 0 };
+  let painted: Paint = { mode: "none", near: null };
 
   const tau = smoothScroller() ? 60 : 100;
 
@@ -259,18 +208,24 @@ function runFilm(
     const width = Math.round(slot!.clientWidth * ratio);
     const height = Math.round(slot!.clientHeight * ratio);
     const scale = Math.min(Math.max(width / tier.width, height / tier.height), 1);
+    const decode =
+      scale >= nativeDecode
+        ? null
+        : {
+            width: Math.max(width, Math.round(tier.width * scale)),
+            height: Math.max(height, Math.round(tier.height * scale)),
+          };
+    const bitmap = decode ?? { width: tier.width, height: tier.height };
+    const frames = Math.floor(budgetBytes / (bitmap.width * bitmap.height * 4));
     return {
       canvas: { width, height },
-      decode:
-        scale >= nativeDecode
-          ? null
-          : { width: Math.round(tier.width * scale), height: Math.round(tier.height * scale) },
+      decode,
+      capacity: clamp(frames, minFrames, maxFrames),
     };
   }
 
   function frameAt(film: number) {
     const linear = film * (count - 1);
-    const pace = motion?.pace;
     if (!pace) return linear;
     let low = 0;
     let high = pace.length - 1;
@@ -284,208 +239,87 @@ function runFilm(
     return low + (to > from ? clamp((linear - from) / (to - from)) : 0);
   }
 
-  function travel(from: number, to: number): Similarity {
-    const steps = motion?.steps;
-    if (!steps || from === to) return identity;
-    if (to < from) return invert(travel(to, from));
-    let result = identity;
-    let at = from;
-    while (at < to - 1e-6) {
-      const index = Math.floor(at + 1e-6);
-      const step = steps[index];
-      const end = Math.min(index + 1, to);
-      const fraction = end - at;
-      if (step) {
-        result = compose(result, {
-          scale: step[0] ** fraction,
-          x: step[1] * fraction,
-          y: step[2] * fraction,
-        });
-      }
-      at = end;
-    }
-    return result;
-  }
-
-  function windowRange() {
-    const base = Math.floor(current);
-    const before = direction >= 0 ? budget.behind : budget.ahead;
-    const after = direction >= 0 ? budget.ahead + 1 : budget.behind + 1;
-    return { from: base - before, to: base + after };
-  }
-
-  function windowHas(index: number) {
-    const range = windowRange();
-    return index >= range.from && index <= range.to;
-  }
-
   function evict() {
-    for (const [index, bitmap] of frames) {
-      if (windowHas(index)) continue;
-      bitmap.close();
+    if (frames.size <= capacity) return;
+    const keep = new Set(plan);
+    const cost = (index: number) => {
+      const offset = (index - current) * direction;
+      return offset < 0 ? -offset * 3 : offset;
+    };
+    const spare = [...frames.keys()]
+      .filter((index) => !keep.has(index) && index !== drawnFrame)
+      .sort((a, b) => cost(b) - cost(a));
+    for (const index of spare) {
+      if (frames.size <= capacity) break;
+      frames.get(index)?.bitmap.close();
       frames.delete(index);
     }
   }
 
-  function bridge(position: number) {
-    const base = Math.floor(position);
-    let low: number | null = null;
-    let high: number | null = null;
-    for (let index = base; index >= base - maxBridge; index -= 1) {
-      if (frames.has(index)) {
-        low = index;
-        break;
-      }
-    }
-    for (let index = base + 1; index <= base + 1 + maxBridge; index += 1) {
-      if (frames.has(index)) {
-        high = index;
-        break;
-      }
-    }
-    if (low === null || high === null || high - low > maxBridge) return null;
-    const lowFrame = frames.get(low);
-    const highFrame = frames.get(high);
-    return lowFrame && highFrame ? { low, high, lowFrame, highFrame } : null;
+  function request(force: boolean) {
+    if (!worker) return;
+    const next = filmWindow({ position: current, velocity, direction, count, capacity });
+    const key = `${next.order[0]}:${next.stride}:${direction}:${generation}:${downloadedVersion}`;
+    if (!force && key === planKey) return;
+    planKey = key;
+    planSpan = { from: Math.min(...next.order) - 8, to: Math.max(...next.order) + 8 };
+    plan = downloadedPlan(next.order, (index) => downloaded[index] === 1, current);
+    stride = next.stride;
+    evict();
+    const missing = plan.filter((index) => frames.get(index)?.generation !== generation);
+    worker.postMessage({
+      type: "want",
+      frames: missing,
+      position: next.order[0] ?? Math.round(current),
+      direction,
+      velocity,
+      span: next.order.length * stride,
+      received,
+    });
   }
 
-  function keySize(): Size {
-    const base = decodeSize ?? { width: tier.width, height: tier.height };
-    return {
-      width: Math.max(1, Math.round(base.width * keyScale)),
-      height: Math.max(1, Math.round(base.height * keyScale)),
-    };
-  }
-
-  function source(position: number): { index: number; bitmap: ImageBitmap } | null {
-    let best: { index: number; bitmap: ImageBitmap } | null = null;
-    let bestDistance = Number.POSITIVE_INFINITY;
-    for (const [pool, penalty] of [
-      [frames, 0],
-      [keys, 0.5],
-    ] as const) {
-      for (const [index, bitmap] of pool) {
-        const distance = Math.abs(index - position) + penalty;
-        if (distance < bestDistance) {
-          bestDistance = distance;
-          best = { index, bitmap };
-        }
-      }
-    }
-    return best;
-  }
-
-  function place(bitmap: ImageBitmap, warp: Similarity, cover: boolean) {
-    const fit = Math.max(canvasSize.width / bitmap.width, canvasSize.height / bitmap.height);
-    const base = { width: bitmap.width * fit, height: bitmap.height * fit };
-    let scale = warp.scale;
-    if (cover) {
-      scale = Math.max(scale, canvasSize.width / base.width, canvasSize.height / base.height);
-    }
-    const width = base.width * scale;
-    const height = base.height * scale;
-    const left = Math.round((canvasSize.width - base.width) / 2);
-    const top = Math.round((canvasSize.height - base.height) / 2);
-    let x = left + (base.width - width) / 2 + warp.x * base.height;
-    let y = top + (base.height - height) / 2 + warp.y * base.height;
-    if (cover) {
-      x = clamp(x, canvasSize.width - width, 0);
-      y = clamp(y, canvasSize.height - height, 0);
-    }
-    return { x, y, width, height };
-  }
-
-  function covers(rect: { x: number; y: number; width: number; height: number }) {
-    return (
-      rect.x <= 0.5 &&
-      rect.y <= 0.5 &&
-      rect.x + rect.width >= canvasSize.width - 0.5 &&
-      rect.y + rect.height >= canvasSize.height - 0.5
-    );
-  }
-
-  function paint(bitmap: ImageBitmap, warp: Similarity, alpha: number) {
+  function draw(bitmap: ImageBitmap) {
     if (!context) return;
-    const rect = place(bitmap, warp, alpha === 1);
-    context.globalAlpha = alpha;
-    context.drawImage(bitmap, rect.x, rect.y, rect.width, rect.height);
-  }
-
-  function step(near: ImageBitmap, next: ImageBitmap, low: number, high: number, position: number) {
-    if (!context) return 0;
-    const width = high - low === 1 ? (motion?.blend?.[low] ?? 1) : 1;
-    let alpha = dissolve(width, (position - low) / (high - low));
-    if (!smoothness.rich) alpha = alpha < 0.5 ? 0 : 1;
-    const front = alpha < 0.5 ? near : next;
-    const back = alpha < 0.5 ? next : near;
-    const frontRect = place(front, travel(alpha < 0.5 ? low : high, position), false);
-    const backRect = place(back, travel(alpha < 0.5 ? high : low, position), false);
-    const backAlpha = alpha < 0.5 ? alpha : 1 - alpha;
-    context.globalAlpha = 1;
-    if (!covers(frontRect)) {
-      context.drawImage(back, backRect.x, backRect.y, backRect.width, backRect.height);
-    }
-    context.drawImage(front, frontRect.x, frontRect.y, frontRect.width, frontRect.height);
-    if (backAlpha >= 1 / 255) {
-      context.globalAlpha = backAlpha;
-      context.drawImage(back, backRect.x, backRect.y, backRect.width, backRect.height);
-    }
-    return alpha;
+    let scale = Math.max(canvasSize.width / bitmap.width, canvasSize.height / bitmap.height);
+    if (Math.abs(scale - 1) < 0.01) scale = 1;
+    const width = Math.round(bitmap.width * scale);
+    const height = Math.round(bitmap.height * scale);
+    context.drawImage(
+      bitmap,
+      Math.round((canvasSize.width - width) / 2),
+      Math.round((canvasSize.height - height) / 2),
+      width,
+      height,
+    );
   }
 
   function render(position: number) {
     if (!context || !canvas) return;
-    if (!dirty && Math.abs(position - drawnAt) < settled) {
-      painted = { ...painted, mode: "same" };
+    const index = nearestFrame(frames.keys(), position, drawnFrame);
+    if (index === null) {
+      painted = { mode: "none", near: null };
       return;
     }
-    const base = Math.floor(position);
-    const fraction = position - base;
-    const near = frames.get(base);
-    const next = frames.get(base + 1);
-    const span = near && next ? null : bridge(position);
-    const started = performance.now();
-    if (near && fraction < settled) {
-      paint(near, identity, 1);
-      painted = { mode: "exact", near: base, next: null, alpha: 0 };
-    } else if (next && fraction > 1 - settled) {
-      paint(next, identity, 1);
-      painted = { mode: "exact", near: base + 1, next: null, alpha: 0 };
-    } else if (near && next) {
-      const alpha = step(near, next, base, base + 1, position);
-      painted = { mode: "blend", near: base, next: base + 1, alpha };
-    } else if (span) {
-      const alpha = step(span.lowFrame, span.highFrame, span.low, span.high, position);
-      painted = { mode: "blend", near: span.low, next: span.high, alpha };
-    } else {
-      const found = source(position);
-      if (!found) {
-        painted = { mode: "none", near: null, next: null, alpha: 0 };
-        return;
-      }
-      const reach = clamp(position, found.index - maxWarp, found.index + maxWarp);
-      paint(found.bitmap, travel(found.index, reach), 1);
-      painted = { mode: "nearest", near: found.index, next: null, alpha: 0 };
+    const mode = index === Math.round(position) ? "exact" : "nearest";
+    if (!dirty && index === drawnFrame) {
+      painted = { mode: "same", near: index };
+      drawnAt = position;
+      return;
     }
-    context.globalAlpha = 1;
+    const frame = frames.get(index);
+    if (!frame) return;
+    const started = performance.now();
+    draw(frame.bitmap);
     stats.drawMs.push(performance.now() - started);
     if (stats.drawMs.length > 2000) stats.drawMs.splice(0, 1000);
+    painted = { mode, near: index };
+    drawnFrame = index;
     drawnAt = position;
     dirty = false;
-    if (!posterHidden && (near || next)) {
+    if (!posterHidden) {
       posterHidden = true;
       poster?.setAttribute("data-hidden", "");
     }
-  }
-
-  function seek(position: number, now: number) {
-    if (!worker || now - lastSeek < 50) return;
-    if (Math.floor(position) === Math.floor(lastSeekPosition)) return;
-    direction = Number.isNaN(lastSeekPosition) || position >= lastSeekPosition ? 1 : -1;
-    lastSeek = now;
-    lastSeekPosition = position;
-    evict();
-    worker.postMessage({ type: "seek", position, direction });
   }
 
   function writeOpacity(element: HTMLElement | null, key: "top" | "bottom", value: number) {
@@ -529,6 +363,16 @@ function runFilm(
     writeOpacity(scrimBottom, "bottom", bottomText ? 1 : 1 - fade);
   }
 
+  function track(linear: number, dt: number) {
+    if (Number.isNaN(lastLinear)) lastLinear = linear;
+    const moved = linear - lastLinear;
+    lastLinear = linear;
+    const instant = dt > 0 ? (moved / dt) * 1000 : 0;
+    velocity += (instant - velocity) * (1 - Math.exp(-dt / velocityTau));
+    if (Math.abs(velocity) < 0.5) velocity = 0;
+    if (Math.abs(moved) > 1e-4) direction = moved > 0 ? 1 : -1;
+  }
+
   function tick(_time: number, dt: number) {
     const { y, viewportHeight } = readScroll();
     const progress = clamp((y - box.top) / Math.max(box.height - viewportHeight, 1));
@@ -540,11 +384,11 @@ function runFilm(
     }
     choreograph(film);
     const linear = frameAt(film);
+    track(linear, dt);
     const target = settle.goal(linear, performance.now());
     current += (target - current) * (1 - Math.exp(-dt / tau));
     if (Math.abs(target - current) < settled) current = target;
-    if (pinned && Math.abs(current - drawnAt) >= settled) smoothness.record(dt);
-    seek(current, performance.now());
+    request(false);
     render(current);
     trace?.push({ ...painted, at: performance.now(), target: linear, current, scroll: y });
   }
@@ -559,6 +403,7 @@ function runFilm(
     const next = sizes();
     canvasSize = next.canvas;
     decodeSize = next.decode;
+    capacity = next.capacity;
     canvas = document.createElement("canvas");
     canvas.width = canvasSize.width;
     canvas.height = canvasSize.height;
@@ -571,10 +416,10 @@ function runFilm(
   function startWorker() {
     createCanvas();
     if (motionUrl) {
-      void loadMotion(motionUrl, count, tierName === "mobile")
+      void loadPace(motionUrl, count)
         .then((loaded) => {
           if (!loaded) return;
-          motion = loaded;
+          pace = loaded;
           dirty = true;
         })
         .catch(() => undefined);
@@ -583,6 +428,8 @@ function runFilm(
     worker.onmessage = (event: MessageEvent<FrameMessage>) => {
       const message = event.data;
       if (message.type === "progress") {
+        downloaded[message.index] = 1;
+        if (message.index >= planSpan.from && message.index <= planSpan.to) downloadedVersion += 1;
         section.dataset.filmLoaded = String(message.loaded);
         section.dataset.filmBytes = String(message.bytes);
         section.dataset.filmTotal = String(message.total);
@@ -593,36 +440,25 @@ function runFilm(
         section.setAttribute("data-hero-static", "");
         return;
       }
-      const fallback = painted.mode === "nearest" || painted.mode === "none";
-      if (message.type === "key") {
-        keys.get(message.index)?.close();
-        keys.set(message.index, message.bitmap);
-        if (fallback) dirty = true;
-        return;
-      }
-      if (message.generation !== generation || !windowHas(message.index)) {
+      received += 1;
+      if (message.generation !== generation) {
         message.bitmap.close();
         return;
       }
       stats.decodeMs.push(message.decodeMs);
       if (stats.decodeMs.length > 2000) stats.decodeMs.splice(0, 1000);
-      frames.get(message.index)?.close();
-      frames.set(message.index, message.bitmap);
-      if (fallback || Math.abs(message.index - current) <= maxWarp + 1) {
+      frames.get(message.index)?.bitmap.close();
+      frames.set(message.index, { bitmap: message.bitmap, generation });
+      evict();
+      if (!frames.has(message.index)) return;
+      const shown = drawnFrame === null ? Number.POSITIVE_INFINITY : Math.abs(drawnFrame - current);
+      if (message.index === drawnFrame || Math.abs(message.index - current) < shown) {
         dirty = true;
         render(current);
       }
     };
-    worker.postMessage({
-      type: "init",
-      frames: frameUrls(tier),
-      decode: decodeSize,
-      key: { step: lowMemory ? keyStep.lowMemory : keyStep.normal, size: keySize() },
-      ahead: budget.ahead,
-      behind: budget.behind,
-    });
-    lastSeekPosition = current;
-    worker.postMessage({ type: "seek", position: current, direction: 1 });
+    worker.postMessage({ type: "init", frames: frameUrls(tier), decode: decodeSize });
+    request(true);
   }
 
   let resizeTimer = 0;
@@ -638,14 +474,14 @@ function runFilm(
       canvas.height = canvasSize.height;
       prepareContext();
       dirty = true;
-      if (sameSize(next.decode, decodeSize)) {
-        render(current);
-        return;
+      if (!sameSize(next.decode, decodeSize)) {
+        decodeSize = next.decode;
+        capacity = next.capacity;
+        generation += 1;
+        worker.postMessage({ type: "resize", decode: decodeSize, generation });
+        request(true);
       }
-      decodeSize = next.decode;
-      generation += 1;
       render(current);
-      worker.postMessage({ type: "resize", decode: decodeSize, generation });
     }, 200);
   }
 
@@ -667,23 +503,28 @@ function runFilm(
   document.addEventListener("visibilitychange", onVisibility);
   (window as Window & { __heroFilm?: unknown }).__heroFilm = {
     stats,
-    smoothness,
     tier: tierName,
-    budget,
-    position: () => ({ current, drawn: drawnAt, resting: settle.resting }),
+    position: () => ({ current, drawn: drawnAt, frame: drawnFrame, resting: settle.resting }),
     trace: (on: boolean) => {
       const recorded = trace;
       trace = on ? [] : null;
       return recorded;
     },
-    frames: () => ({
-      window: frames.size,
-      keys: keys.size,
-      decode: decodeSize,
-      canvas: canvasSize,
-      motion: Boolean(motion),
-      pace: Boolean(motion?.pace),
-    }),
+    frames: () => {
+      let bytes = 0;
+      for (const frame of frames.values()) bytes += frame.bitmap.width * frame.bitmap.height * 4;
+      return {
+        window: frames.size,
+        capacity,
+        stride,
+        velocity: Math.round(velocity),
+        megabytes: Math.round(bytes / 1e5) / 10,
+        budgetMegabytes: budgetBytes / 1e6,
+        decode: decodeSize,
+        canvas: canvasSize,
+        pace: Boolean(pace),
+      };
+    },
   };
 
   function stop() {
@@ -696,10 +537,8 @@ function runFilm(
     document.removeEventListener("visibilitychange", onVisibility);
     worker?.terminate();
     worker = null;
-    for (const bitmap of frames.values()) bitmap.close();
+    for (const frame of frames.values()) frame.bitmap.close();
     frames.clear();
-    for (const bitmap of keys.values()) bitmap.close();
-    keys.clear();
     canvas?.remove();
     poster?.removeAttribute("data-hidden");
     scrimTop?.style.removeProperty("opacity");

@@ -1,17 +1,18 @@
 type Size = { width: number; height: number };
 
-type InitMessage = {
-  type: "init";
-  frames: string[];
-  decode: Size | null;
-  key: { step: number; size: Size };
-  ahead: number;
-  behind: number;
-};
+type InitMessage = { type: "init"; frames: string[]; decode: Size | null };
 
 type InMessage =
   | InitMessage
-  | { type: "seek"; position: number; direction: number }
+  | {
+      type: "want";
+      frames: number[];
+      position: number;
+      direction: number;
+      velocity: number;
+      span: number;
+      received: number;
+    }
   | { type: "resize"; decode: Size | null; generation: number }
   | { type: "visibility"; hidden: boolean };
 
@@ -25,17 +26,23 @@ const scope = globalThis as unknown as Scope;
 const passes = [8, 4, 2, 1];
 const leadStrides = [4, 2, 1];
 const maxFetches = 4;
-const maxDecodes = 3;
+const maxDecodes = 4;
+const denseLead = 6;
+const denseFetchMs = 300;
 const leadFactor = 3;
 
 let config: InitMessage | null = null;
 let blobs: (Blob | null)[] = [];
 const fetching = new Set<number>();
-const decoding = new Set<string>();
-const sent = new Set<number>();
-const keysSent = new Set<number>();
+const decoding = new Set<number>();
+const inTransit = new Map<number, number>();
+let posted = 0;
+let wanted: number[] = [];
 let position = 0;
 let direction = 1;
+let span = 0;
+let velocity = 0;
+let fetchMs = 400;
 let generation = 0;
 let paused = false;
 let bytes = 0;
@@ -44,51 +51,45 @@ let failed = false;
 let decodedAny = false;
 let failures = 0;
 
-function reach() {
-  const ahead = config?.ahead ?? 0;
-  const behind = config?.behind ?? 0;
-  return direction >= 0
-    ? { before: behind, after: ahead + 1 }
-    : { before: ahead, after: behind + 1 };
-}
-
-function inWindow(index: number) {
-  const { before, after } = reach();
-  const base = Math.floor(position);
-  return index >= base - before && index <= base + after;
-}
-
-function windowOrder(span: number): number[] {
+function leadOrder(): number[] {
   if (!config) return [];
   const count = config.frames.length;
-  const base = Math.floor(position);
-  const { before, after } = reach();
-  const forward = direction >= 0 ? after * span : before * span;
-  const backward = direction >= 0 ? before * span : after * span;
+  const reach = Math.max(span, 8) * leadFactor;
+  const start = Math.min(Math.round((Math.abs(velocity) * fetchMs) / 1000), reach);
   const order: number[] = [];
-  for (let step = 0; step <= Math.max(forward, backward); step += 1) {
-    const ahead = direction >= 0 ? base + step : base + 1 - step;
-    const behind = direction >= 0 ? base - step : base + 1 + step;
-    if (step <= forward && ahead >= 0 && ahead < count) order.push(ahead);
-    if (step > 0 && step <= backward && behind >= 0 && behind < count) order.push(behind);
+  for (let step = start; step <= start + reach; step += 1) {
+    const ahead = position + direction * step;
+    if (ahead >= 0 && ahead < count) order.push(ahead);
+  }
+  for (let step = 0; step < start; step += 1) {
+    const passing = position + direction * step;
+    if (passing >= 0 && passing < count) order.push(passing);
+  }
+  for (let step = 1; step <= reach / 4; step += 1) {
+    const behind = position - direction * step;
+    if (behind >= 0 && behind < count) order.push(behind);
   }
   return order;
 }
 
+function needsFetch(index: number) {
+  return !blobs[index] && !fetching.has(index);
+}
+
 function nextToFetch(): number | null {
   if (!config) return null;
-  const lead = windowOrder(leadFactor);
+  const lead = leadOrder();
+  const dense = fetchMs < denseFetchMs ? denseLead : 0;
+  for (const index of lead.slice(0, dense)) if (needsFetch(index)) return index;
   for (const stride of leadStrides) {
-    for (const index of lead) {
-      if (index % stride === 0 && !blobs[index] && !fetching.has(index)) return index;
-    }
+    for (const index of lead) if (index % stride === 0 && needsFetch(index)) return index;
   }
   const count = config.frames.length;
   for (const step of passes) {
     let best: number | null = null;
     let bestDistance = Number.POSITIVE_INFINITY;
     for (let index = 0; index < count; index += step) {
-      if (blobs[index] || fetching.has(index)) continue;
+      if (!needsFetch(index)) continue;
       const distance = Math.abs(index - position);
       if (distance < bestDistance) {
         bestDistance = distance;
@@ -106,6 +107,7 @@ function pump() {
     const index = nextToFetch();
     if (index === null) break;
     fetching.add(index);
+    const started = performance.now();
     void fetch(config.frames[index] ?? "", { priority: "low" } as RequestInit)
       .then((response) => (response.ok ? response.blob() : null))
       .then((blob) => {
@@ -114,7 +116,8 @@ function pump() {
         blobs[index] = blob;
         bytes += blob.size;
         loaded += 1;
-        scope.postMessage({ type: "progress", loaded, bytes, total: blobs.length });
+        fetchMs += (performance.now() - started - fetchMs) * 0.2;
+        scope.postMessage({ type: "progress", index, loaded, bytes, total: blobs.length });
         schedule();
       })
       .catch(() => {
@@ -125,28 +128,11 @@ function pump() {
   schedule();
 }
 
-function wanted(): number | null {
-  for (const index of windowOrder(1)) {
-    if (!inWindow(index)) continue;
-    if (blobs[index] && !sent.has(index) && !decoding.has(`f${index}`)) return index;
+function nextToDecode(): number | null {
+  for (const index of wanted) {
+    if (blobs[index] && !decoding.has(index)) return index;
   }
   return null;
-}
-
-function wantedKey(): number | null {
-  if (!config) return null;
-  const step = config.key.step;
-  let best: number | null = null;
-  let bestDistance = Number.POSITIVE_INFINITY;
-  for (let index = 0; index < blobs.length; index += step) {
-    if (!blobs[index] || keysSent.has(index)) continue;
-    const distance = Math.abs(index - position);
-    if (distance < bestDistance) {
-      bestDistance = distance;
-      best = index;
-    }
-  }
-  return best;
 }
 
 function upload(bitmap: ImageBitmap): ImageBitmap {
@@ -168,35 +154,29 @@ function decodeOptions(size: Size | null): ImageBitmapOptions | undefined {
 function schedule() {
   if (!config || paused || failed) return;
   while (decoding.size < maxDecodes) {
-    let index = wanted();
-    let key = false;
-    if (index === null) {
-      index = wantedKey();
-      key = true;
-    }
+    const index = nextToDecode();
     if (index === null) return;
     const blob = blobs[index];
     if (!blob) return;
-    const job = `${key ? "k" : "f"}${index}`;
-    decoding.add(job);
-    if (key) keysSent.add(index);
-    else sent.add(index);
+    decoding.add(index);
     const started = performance.now();
     const jobGeneration = generation;
-    const frameIndex = index;
-    void createImageBitmap(blob, decodeOptions(key ? config.key.size : config.decode))
+    void createImageBitmap(blob, decodeOptions(config.decode))
       .then(upload)
       .then((bitmap) => {
-        decoding.delete(job);
+        decoding.delete(index);
         decodedAny = true;
-        if (!key && jobGeneration !== generation) {
+        if (jobGeneration !== generation) {
           bitmap.close();
           return;
         }
+        inTransit.set(index, posted);
+        posted += 1;
+        wanted = wanted.filter((frame) => frame !== index);
         scope.postMessage(
           {
-            type: key ? "key" : "frame",
-            index: frameIndex,
+            type: "frame",
+            index,
             generation: jobGeneration,
             decodeMs: performance.now() - started,
             bitmap,
@@ -205,9 +185,7 @@ function schedule() {
         );
       })
       .catch(() => {
-        decoding.delete(job);
-        if (key) keysSent.delete(frameIndex);
-        else sent.delete(frameIndex);
+        decoding.delete(index);
         failures += 1;
         if (!decodedAny && failures >= 2) {
           failed = true;
@@ -226,17 +204,23 @@ scope.onmessage = (event) => {
       blobs = message.frames.map(() => null);
       pump();
       break;
-    case "seek":
+    case "want": {
+      for (const [index, sequence] of inTransit) {
+        if (sequence < message.received) inTransit.delete(index);
+      }
+      wanted = message.frames.filter((index) => !inTransit.has(index));
       position = message.position;
-      direction = message.direction;
-      for (const index of [...sent]) if (!inWindow(index)) sent.delete(index);
+      direction = message.direction >= 0 ? 1 : -1;
+      velocity = message.velocity;
+      span = message.span;
       pump();
       break;
+    }
     case "resize":
       if (!config) return;
       config = { ...config, decode: message.decode };
       generation = message.generation;
-      sent.clear();
+      inTransit.clear();
       schedule();
       break;
     case "visibility":
