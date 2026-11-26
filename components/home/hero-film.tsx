@@ -42,6 +42,7 @@ function Poster({ hero }: { hero: HomeHero }) {
   const common = {
     alt: poster.alt || hero.headline,
     sizes: "100vw",
+    loading: "eager" as const,
     fetchPriority: "high" as const,
   };
   const {
