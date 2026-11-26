@@ -365,14 +365,24 @@
 .hero-scrim-top,
 .hero-scrim-bottom {
   position: absolute;
-  inset-inline: 0;
-  height: 55%;
   pointer-events: none;
+  will-change: opacity;
   transition: opacity var(--motion-base) var(--ease-standard);
 }
 
 .hero-scrim-top {
-  top: 0;
+  inset: 0 0 auto;
+  height: calc(var(--spacing-header) * 2);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--color-dark-deep) 50%, transparent) 0%,
+    color-mix(in oklab, var(--color-dark-deep) 30%, transparent) 50%,
+    transparent 100%
+  );
+}
+
+.hero-film:has(.hero-chapter.is-top) .hero-scrim-top {
+  height: 55%;
   background: linear-gradient(
     to bottom,
     color-mix(in oklab, var(--color-dark-deep) 88%, transparent) 0%,
@@ -382,46 +392,39 @@
 }
 
 .hero-scrim-bottom {
-  bottom: 0;
+  inset: auto 0 0;
+  height: 60%;
   background: linear-gradient(
     to top,
-    color-mix(in oklab, var(--color-dark-deep) 88%, transparent) 0%,
-    color-mix(in oklab, var(--color-dark-deep) 80%, transparent) 45%,
+    color-mix(in oklab, var(--color-dark-deep) 82%, transparent) 0%,
+    color-mix(in oklab, var(--color-dark-deep) 55%, transparent) 40%,
     transparent 100%
   );
 }
 
 .hero-copy {
   position: relative;
-  display: grid;
-  grid-template-rows: 1fr auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   height: 100%;
   padding-top: calc(var(--spacing-header) + 1.5rem);
-  padding-bottom: 2.5rem;
+  padding-bottom: calc(2.5rem + env(safe-area-inset-bottom));
   container-type: inline-size;
 }
 
 .hero-title {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
   font-family: var(--font-display);
   font-weight: var(--font-weight-medium);
-  line-height: var(--text-h1--line-height);
-  letter-spacing: var(--text-h1--letter-spacing);
-  text-wrap: balance;
+  line-height: var(--text-hero--line-height);
+  letter-spacing: var(--text-hero--letter-spacing);
 }
 
-.hero-title-a,
-.hero-title-b {
+.hero-title-line {
   display: block;
   max-width: 100%;
+  text-wrap: balance;
   will-change: transform, opacity;
-}
-
-.hero-title-b {
-  grid-row: 3;
-  justify-self: end;
-  text-align: right;
 }
 
 .hero-lead {
@@ -429,6 +432,20 @@
   flex-direction: column;
   max-width: 36rem;
   margin-top: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .hero-scrim-bottom {
+    inset: 0;
+    height: auto;
+    background: radial-gradient(
+      ellipse 80% 70% at 0% 100%,
+      color-mix(in oklab, var(--color-dark-deep) 85%, transparent) 0%,
+      color-mix(in oklab, var(--color-dark-deep) 68%, transparent) 55%,
+      color-mix(in oklab, var(--color-dark-deep) 32%, transparent) 80%,
+      transparent 100%
+    );
+  }
 }
 
 .hero-chapters {
