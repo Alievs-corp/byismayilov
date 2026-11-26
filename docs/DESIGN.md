@@ -63,7 +63,7 @@ Fallback`) keep layout shift near zero.
 | Token          | Size (fluid)           | Line height | Use                                    |
 | -------------- | ---------------------- | ----------- | -------------------------------------- |
 | `text-display` | 4.5rem to 21rem        | 0.85        | Ghost wordmark, 404 numerals           |
-| `text-hero`    | 2.5rem to 5.75rem      | 0.98        | Hero headline, uppercase serif         |
+| `text-hero`    | 2.5rem to 5.75rem      | 0.98        | Hero headline                          |
 | `text-h1`      | 2.75rem to 6.25rem     | 1           | Page titles, master name               |
 | `text-h2`      | 2.25rem to 4.5rem      | 1.02        | Section titles, two lines, mixed case  |
 | `text-h3`      | 1.625rem to 2.5rem     | 1.1         | Block titles, menu links, address      |
@@ -105,6 +105,7 @@ the base layer) or add `font-display`.
 | `card()`                     | same                                 | `soft` default, `blush` for exactly one card per row, `cream`, `white`.                                                                                                                                                                                                                                                                      |
 | `Wordmark`, `BrandMark`      | `components/site/wordmark.tsx`       | Name in the display serif with the eight ray sparkle. `SiteLogo` prefers an uploaded logo.                                                                                                                                                                                                                                                   |
 | `SectionHead`                | `components/site/section-head.tsx`   | Big serif title left (two lines), optional ornament, short paragraph in the middle, controls or link right.                                                                                                                                                                                                                                  |
+| `HeroFilm`                   | `components/home/hero-film.tsx`      | Scroll-scrubbed film. The headline is one block bottom left: two stacked lines in `text-hero` (capped so the longest word fits), the booking pill right below, over a bottom-left gradient that leaves the film centre clear. The lines part sideways and fade as the film starts.                                                           |
 | `ServiceCard`, `ServiceRail` | `components/home/service-rail.tsx`   | Photo 4:5, white price pill top left, serif name, duration, round arrow.                                                                                                                                                                                                                                                                     |
 | `MasterFeature`              | `components/home/master-feature.tsx` | Photo left, label, name in `text-h1`, role in serif, bio, service chips, booking and Instagram.                                                                                                                                                                                                                                              |
 | `WorkMosaic`                 | `components/home/work-mosaic.tsx`    | Five tiles in an asymmetric grid; never a uniform grid.                                                                                                                                                                                                                                                                                      |
@@ -131,6 +132,16 @@ Assets: `assets/ornaments/*.svg` (line art, source for
   in `currentColor`. Stroke width is computed per breakpoint so the line is
   about 1.1px on screen at any size. Colour it with a text class
   (`text-caramel-ink` on light, `text-champagne` on dark).
+- Illustrations (`scissors-lock`: open shears whose blade tip trails into a
+  curling lock; `hand-mirror`: ornate hand mirror whose glass reflects waves,
+  one strand escaping the frame) time each path in the source SVG:
+  `data-at` (start) and `data-span` (length) as fractions of the draw duration,
+  `data-weight` scales the stroke, and `data-accent` paths are filled sparkles
+  and dots that fade and settle at the end. `pnpm ornaments:build` keeps these
+  attributes. `width` also takes `xl`.
+- `reveal="draw"` draws when the ornament scrolls into view; `reveal="draw-load"`
+  is a CSS-only draw on page load for ornaments in the first viewport (no
+  JavaScript, no hidden state without it).
 - `<MaskOrnament name="eucalyptus" />` for the filled footer sprig.
 - `<Glow name float? />` for the toned light blobs.
 
@@ -139,20 +150,20 @@ and ten places on the whole site:
 
 | Place                                              | Ornament                                                                      | Status |
 | -------------------------------------------------- | ----------------------------------------------------------------------------- | ------ |
-| Home services section head                         | `hair-strand`, caramel-ink, 96 to 140px                                       | Done   |
+| Home services section head                         | `scissors-lock`, caramel-ink, 84px (mobile) to 196px (xl)                     | Done   |
 | Home booking band                                  | `hair-wave` champagne + `glow-wide-dark` (the one ambient float)              | Done   |
 | Footer top edge, every page                        | `eucalyptus` mask, champagne at 38%                                           | Done   |
 | Empty states and 404                               | `blossom-spray`, caramel-ink                                                  | Done   |
 | `/qeydiyyat` side column, desktop only (>= 1024px) | `magnolia` with `glow-orb-light` (50%) centred behind it, never behind fields | Done   |
 | `/ustalar` page head                               | `peony` through the `PageHeading` `ornament` slot, 120 to 160px               | Done   |
 | `/xidmetler` page head                             | `hair-wave`, 180 to 240px, desktop only                                       | Done   |
-| `/islerimiz` page head                             | `hair-strand`, 120 to 150px, desktop only                                     | Done   |
+| `/islerimiz` page head                             | `hand-mirror`, 132 to 150px, desktop only, `reveal="draw-load"`               | Done   |
 | `/elaqe` page head                                 | `eucalyptus-line`, 150 to 190px, desktop only                                 | Done   |
 | Blog post end                                      | `blossom-spray`, 120 to 150px, centred after the article body                 | Done   |
 
 Never behind body text, prices or form fields, never in the admin, never
 repeated inside card grids, never more than one per section. `sparkle` and
-`asterisk` exist only as the brand mark echo.
+`asterisk` exist only as the brand mark echo; `hair-strand` is a spare.
 
 ## 6. Motion
 
@@ -176,6 +187,17 @@ compositor. Vocabulary, so sections do not all fade the same way:
 - Stagger: put `data-reveal-group` on the parent; children get 120ms steps
   (max four), or set `--reveal-delay` inline for a grid.
 - Easing is `--ease-out-expo` (`--ease-out-soft` for lines and arches).
+- Header nav links (`.header-link`, xl+): on hover (fine pointers only, not
+  while Lenis scrolls) and on `:focus-visible` the uppercase sans label rolls
+  up letter by letter (`--motion-stagger-letter` 18ms, at most 12 steps,
+  `--motion-base` each) while the same word rolls in from below in the display
+  serif, mixed case, in `--header-accent` (`caramel-ink` on cream,
+  `champagne` with a soft `dark-deep` halo over the hero film). The brand
+  sparkle scales and turns in left of the label and stays on the current page
+  link. Both labels sit in one grid cell, so the link width never changes; the
+  letter rows are `aria-hidden` and an `sr-only` copy carries the name. Reduced
+  motion: no letter or sparkle motion, the label fades to the accent colour and
+  the sparkle fades in.
 - Never hidden for good: an element already in the viewport (or above it) when
   the page starts is shown at once, without animation, so the first screen
   and the LCP never wait for JavaScript. Elements scrolled past by an anchor

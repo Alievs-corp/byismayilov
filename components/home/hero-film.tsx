@@ -30,9 +30,8 @@ function longestSegment(text: string): number {
   return Math.max(1, ...text.split(/[\s-]+/).map((part) => part.length));
 }
 
-function displaySize(text: string, words: number): string {
-  const cap = words <= 2 ? "var(--text-display)" : "var(--text-h1)";
-  return `min(${cap}, calc(100cqi / ${(longestSegment(text) * charWidth).toFixed(2)}))`;
+function titleSize(text: string): string {
+  return `min(var(--text-hero), calc(100cqi / ${(longestSegment(text) * charWidth).toFixed(2)}))`;
 }
 
 function Poster({ hero }: { hero: HomeHero }) {
@@ -77,8 +76,7 @@ export function HeroFilm({
   panel: ReactNode;
 }) {
   const [groupA, groupB] = splitHeadline(hero.headline);
-  const wordCount = hero.headline.split(/\s+/).filter(Boolean).length;
-  const fontSize = displaySize(hero.headline, wordCount);
+  const fontSize = titleSize(hero.headline);
   const film = hero.film;
 
   return (
@@ -95,12 +93,12 @@ export function HeroFilm({
           <div aria-hidden="true" className="hero-scrim-top" />
           <div aria-hidden="true" className="hero-scrim-bottom" />
           <div className="hero-copy container-page">
-            <h1 id="hero-title" className="hero-title">
-              <span data-hero-a="" className="hero-title-a" style={{ fontSize } as CSSProperties}>
+            <h1 id="hero-title" className="hero-title" style={{ fontSize } as CSSProperties}>
+              <span data-hero-a="" className="hero-title-line">
                 {groupA}
               </span>{" "}
               {groupB ? (
-                <span data-hero-b="" className="hero-title-b" style={{ fontSize } as CSSProperties}>
+                <span data-hero-b="" className="hero-title-line">
                   {groupB}
                 </span>
               ) : null}
@@ -110,7 +108,7 @@ export function HeroFilm({
               {hero.cta ? (
                 <Link
                   href={hero.cta.href}
-                  className={`${button({ variant: "accent" })} mt-6 self-start`}
+                  className={`${button({ variant: "accent" })} mt-6 self-start first:mt-0`}
                 >
                   {hero.cta.label}
                   <ArrowRightIcon size={20} className={buttonArrow} />

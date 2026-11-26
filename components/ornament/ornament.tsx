@@ -2,11 +2,11 @@ import type { CSSProperties } from "react";
 
 import { cx } from "@/lib/cx";
 
-import { ornamentShapes, type OrnamentName } from "./paths";
+import { ornamentShapes, type OrnamentName, type OrnamentPath } from "./paths";
 
-export type OrnamentReveal = "draw" | "rise" | "twinkle" | "none";
+export type OrnamentReveal = "draw" | "draw-load" | "rise" | "twinkle" | "none";
 
-export type OrnamentWidth = { base: number; md?: number; lg?: number };
+export type OrnamentWidth = { base: number; md?: number; lg?: number; xl?: number };
 
 export const ornamentInk = 1.1;
 
@@ -19,7 +19,7 @@ function sizeVars(name: OrnamentName, width: OrnamentWidth, ink: number) {
     "--o-w": `${width.base}px`,
     "--o-sw": ornamentStroke(name, width.base, ink),
   };
-  for (const key of ["md", "lg"] as const) {
+  for (const key of ["md", "lg", "xl"] as const) {
     const value = width[key];
     if (value === undefined) continue;
     vars[`--o-w-${key}`] = `${value}px`;
@@ -70,15 +70,29 @@ export function Ornament({
         strokeLinecap={stroke ? "round" : undefined}
         strokeLinejoin={stroke ? "round" : undefined}
       >
-        {shape.paths.map((d, index) =>
-          stroke ? (
-            <path key={index} d={d} pathLength={1} />
+        {shape.paths.map((entry, index) => {
+          if (typeof entry !== "string") return <TimedPath key={index} path={entry} />;
+          return stroke ? (
+            <path key={index} d={entry} pathLength={1} />
           ) : (
-            <path key={index} d={d} fillRule="evenodd" />
-          ),
-        )}
+            <path key={index} d={entry} fillRule="evenodd" />
+          );
+        })}
       </svg>
     </span>
+  );
+}
+
+function TimedPath({ path }: { path: OrnamentPath }) {
+  const timing = {
+    ...(path.at ? { "--p-at": path.at } : {}),
+    ...(path.span ? { "--p-span": path.span } : {}),
+    ...(path.weight ? { "--p-w": path.weight } : {}),
+  } as CSSProperties;
+  return path.accent ? (
+    <path d={path.d} data-accent="" fill="currentColor" stroke="none" style={timing} />
+  ) : (
+    <path d={path.d} pathLength={1} style={timing} />
   );
 }
 
@@ -95,7 +109,7 @@ export function MaskOrnament({
 }: {
   name: keyof typeof maskOrnaments;
   width: OrnamentWidth;
-  reveal?: Exclude<OrnamentReveal, "draw">;
+  reveal?: Exclude<OrnamentReveal, "draw" | "draw-load">;
   className?: string;
   style?: CSSProperties;
 }) {

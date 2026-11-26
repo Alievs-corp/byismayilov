@@ -82,7 +82,10 @@ async function filmRange(page: Page) {
     const section = document.querySelector<HTMLElement>("[data-hero-film]");
     if (!section) throw new Error("No hero film on the page");
     const top = section.getBoundingClientRect().top + scrollY;
-    return { top, range: section.offsetHeight - innerHeight };
+    const range = section.offsetHeight - innerHeight;
+    const spacer = section.querySelector<HTMLElement>(".hero-spacer")?.offsetHeight ?? 0;
+    const filmEnd = Math.min(Math.max((spacer + 0.35 * innerHeight) / range, 0.05), 1);
+    return { top, range, filmPx: Math.round(filmEnd * range) };
   });
 }
 
@@ -453,7 +456,7 @@ async function measureCase(browser: Browser, deviceName: DeviceName, networkName
     timeout: 60_000,
   });
   await page.waitForTimeout(3000);
-  const { top, range } = await filmRange(page);
+  const { top, range, filmPx } = await filmRange(page);
   await page.mouse.move(devicesUnderTest[deviceName].viewport.width / 2, 400);
 
   const tier = await page.evaluate(() => (window as FilmWindow).__heroFilm?.tier);
@@ -518,6 +521,7 @@ async function measureCase(browser: Browser, deviceName: DeviceName, networkName
     network: networkName,
     cpu: "4x",
     tier,
+    filmPx,
     loaded,
     totalSeconds: Math.round((Date.now() - started) / 1000),
     passes: results,

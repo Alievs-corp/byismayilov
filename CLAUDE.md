@@ -249,6 +249,7 @@ pnpm dev                        # http://localhost:3030/admin
 | `pnpm storage:cors [origin]`    | Lets the browser upload to the bucket from the app origin                                 |
 | `pnpm hero:upload`              | Uploads a hero film frame sequence to the bucket and registers it                         |
 | `pnpm hero:perf`                | Hero film playback on a running build: freezes, skips, blends, proxies, sharpness         |
+| `python scripts/hero-pace.py`   | Hero film pace from frame sharpness and motion; soft turns take less scroll               |
 | `pnpm db:seed:local-media`      | Local only: real salon photos from `LOCAL_MEDIA_DIR` into gallery, master and covers      |
 | `pnpm ornaments:build`          | Regenerates `components/ornament/paths.ts` from `assets/ornaments/*.svg`                  |
 | `python scripts/fonts.py check` | Verifies Azerbaijani and Cyrillic coverage of the committed font files (fontTools)        |

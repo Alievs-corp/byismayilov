@@ -636,8 +636,19 @@ html.lenis body {
     --o-ease: var(--ease-out-soft);
   }
   :root[data-motion] [data-ornament="draw"] path {
+    --o-time: var(--o-dur, var(--motion-ornament));
     stroke-dasharray: 1;
-    transition: stroke-dashoffset var(--o-dur, var(--motion-ornament)) var(--o-ease);
+    transition: stroke-dashoffset calc(var(--o-time) * var(--p-span, 1)) var(--o-ease)
+      calc(var(--o-time) * var(--p-at, 0));
+  }
+  :root[data-motion] [data-ornament="draw"] path[data-accent] {
+    stroke-dasharray: none;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+      opacity var(--motion-ornament-short) var(--o-ease) calc(var(--o-time) * var(--p-at, 0)),
+      scale var(--motion-ornament-short) var(--o-ease) calc(var(--o-time) * var(--p-at, 0)),
+      rotate var(--motion-ornament-short) var(--o-ease) calc(var(--o-time) * var(--p-at, 0));
   }
   :root[data-motion] [data-ornament="draw"] svg {
     transition: opacity var(--motion-base) var(--ease-standard);
@@ -647,6 +658,24 @@ html.lenis body {
   }
   :root[data-motion] [data-ornament="draw"]:not([data-revealed]) svg {
     opacity: 0;
+  }
+  :root[data-motion] [data-ornament="draw"]:not([data-revealed]) path[data-accent] {
+    opacity: 0;
+    scale: 0.3;
+    rotate: -30deg;
+  }
+  [data-ornament="draw-load"] path {
+    --o-time: var(--o-dur, var(--motion-ornament));
+    stroke-dasharray: 1;
+    animation: ornament-draw calc(var(--o-time) * var(--p-span, 1)) var(--ease-out-soft)
+      calc(var(--motion-base) + var(--o-time) * var(--p-at, 0)) both;
+  }
+  [data-ornament="draw-load"] path[data-accent] {
+    stroke-dasharray: none;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation-name: ornament-accent;
+    animation-duration: var(--motion-ornament-short);
   }
   :root[data-motion] [data-ornament="rise"],
   :root[data-motion] [data-ornament="glow"] {
@@ -678,6 +707,23 @@ html.lenis body {
   }
   .glow[data-float][data-playing] {
     animation-play-state: running;
+  }
+}
+
+@keyframes ornament-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes ornament-accent {
+  from {
+    opacity: 0;
+    scale: 0.3;
+    rotate: -30deg;
   }
 }
 
