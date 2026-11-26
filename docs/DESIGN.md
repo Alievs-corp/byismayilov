@@ -187,6 +187,17 @@ compositor. Vocabulary, so sections do not all fade the same way:
 - Stagger: put `data-reveal-group` on the parent; children get 120ms steps
   (max four), or set `--reveal-delay` inline for a grid.
 - Easing is `--ease-out-expo` (`--ease-out-soft` for lines and arches).
+- Header nav links (`.header-link`, xl+): on hover (fine pointers only, not
+  while Lenis scrolls) and on `:focus-visible` the uppercase sans label rolls
+  up letter by letter (`--motion-stagger-letter` 18ms, at most 12 steps,
+  `--motion-base` each) while the same word rolls in from below in the display
+  serif, mixed case, in `--header-accent` (`caramel-ink` on cream,
+  `champagne` with a soft `dark-deep` halo over the hero film). The brand
+  sparkle scales and turns in left of the label and stays on the current page
+  link. Both labels sit in one grid cell, so the link width never changes; the
+  letter rows are `aria-hidden` and an `sr-only` copy carries the name. Reduced
+  motion: no letter or sparkle motion, the label fades to the accent colour and
+  the sparkle fades in.
 - Never hidden for good: an element already in the viewport (or above it) when
   the page starts is shown at once, without animation, so the first screen
   and the LCP never wait for JavaScript. Elements scrolled past by an anchor

@@ -27,6 +27,7 @@ import { formatAzerbaijaniPhone } from "@/lib/phone";
 
 import { button, buttonArrow, roundButton } from "./button";
 import { LanguageList, LanguageMenu } from "./language-switch";
+import { brandMarkPath } from "./wordmark";
 
 export type HeaderLink = { id: string; label: string; href: string };
 
@@ -193,7 +194,7 @@ export function HeaderBar({
                     aria-current={current ? "page" : undefined}
                     className="header-link text-label inline-flex min-h-11 items-center px-3.5 uppercase"
                   >
-                    {item.label}
+                    <HeaderLinkLabel label={item.label} />
                   </Link>
                 </li>
               );
@@ -235,6 +236,39 @@ export function HeaderBar({
         />
       ) : null}
     </header>
+  );
+}
+
+const graphemes = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+
+function HeaderLinkLabel({ label }: { label: string }) {
+  const glyphs = Array.from(graphemes.segment(label), (part) => part.segment);
+  const row = (className: string) => (
+    <span className={className}>
+      {glyphs.map((glyph, index) => (
+        <span key={index} style={{ "--i": index } as CSSProperties}>
+          {glyph}
+        </span>
+      ))}
+    </span>
+  );
+  return (
+    <>
+      <svg
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+        focusable="false"
+        fill="currentColor"
+        className="header-link-spark"
+      >
+        <path d={brandMarkPath} />
+      </svg>
+      <span className="sr-only normal-case">{label}</span>
+      <span aria-hidden="true" className="header-link-word">
+        {row("header-link-sans")}
+        {row("header-link-serif")}
+      </span>
+    </>
   );
 }
 

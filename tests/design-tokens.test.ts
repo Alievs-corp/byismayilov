@@ -53,6 +53,8 @@ const text: [string, string][] = [
   ["accent", "dark"],
   ["accent", "dark-deep"],
   ["accent", "espresso"],
+  ["champagne", "dark-deep"],
+  ["champagne", "espresso"],
   ["on-dark-muted", "dark"],
   ["on-dark-muted", "dark-deep"],
   ["on-dark-muted", "dark-raised"],
