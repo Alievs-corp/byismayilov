@@ -27,10 +27,10 @@ server (port 3030) to see every token and component rendered.
    the dark part of the hero field.
 5. **Ornaments.** At most one per section, ten places on the whole site,
    never behind text, prices or fields, never in card grids, never in the
-   admin. Placed: home services head (hair-strand), booking band (hair-wave +
+   admin. Placed: home services head (scissors-lock), booking band (hair-wave +
    glow), footer (eucalyptus), empty states and 404 (blossom-spray),
    `/qeydiyyat` side (magnolia + glow), page heads of `/ustalar` (peony),
-   `/xidmetler` (hair-wave), `/islerimiz` (hair-strand), `/elaqe`
+   `/xidmetler` (hair-wave), `/islerimiz` (hand-mirror), `/elaqe`
    (eucalyptus-line), blog post end (blossom-spray). Do not add others without
    removing one.
 6. **Motion.** One-shot reveals from the vocabulary in `docs/DESIGN.md`

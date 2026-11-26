@@ -49,9 +49,11 @@ export default async function GalleryPage({ searchParams }: PageProps<"/[locale]
         lead={<p>{dict.gallery.description}</p>}
         ornament={
           <Ornament
-            name="hair-strand"
-            width={{ base: 120, lg: 150 }}
+            name="hand-mirror"
+            width={{ base: 132, xl: 150 }}
+            reveal="draw-load"
             ink={1.2}
+            duration={1500}
             className="text-caramel-ink"
           />
         }

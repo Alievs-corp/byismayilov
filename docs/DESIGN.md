@@ -131,6 +131,16 @@ Assets: `assets/ornaments/*.svg` (line art, source for
   in `currentColor`. Stroke width is computed per breakpoint so the line is
   about 1.1px on screen at any size. Colour it with a text class
   (`text-caramel-ink` on light, `text-champagne` on dark).
+- Illustrations (`scissors-lock`: open shears whose blade tip trails into a
+  curling lock; `hand-mirror`: ornate hand mirror whose glass reflects waves,
+  one strand escaping the frame) time each path in the source SVG:
+  `data-at` (start) and `data-span` (length) as fractions of the draw duration,
+  `data-weight` scales the stroke, and `data-accent` paths are filled sparkles
+  and dots that fade and settle at the end. `pnpm ornaments:build` keeps these
+  attributes. `width` also takes `xl`.
+- `reveal="draw"` draws when the ornament scrolls into view; `reveal="draw-load"`
+  is a CSS-only draw on page load for ornaments in the first viewport (no
+  JavaScript, no hidden state without it).
 - `<MaskOrnament name="eucalyptus" />` for the filled footer sprig.
 - `<Glow name float? />` for the toned light blobs.
 
@@ -139,20 +149,20 @@ and ten places on the whole site:
 
 | Place                                              | Ornament                                                                      | Status |
 | -------------------------------------------------- | ----------------------------------------------------------------------------- | ------ |
-| Home services section head                         | `hair-strand`, caramel-ink, 96 to 140px                                       | Done   |
+| Home services section head                         | `scissors-lock`, caramel-ink, 84px (mobile) to 196px (xl)                     | Done   |
 | Home booking band                                  | `hair-wave` champagne + `glow-wide-dark` (the one ambient float)              | Done   |
 | Footer top edge, every page                        | `eucalyptus` mask, champagne at 38%                                           | Done   |
 | Empty states and 404                               | `blossom-spray`, caramel-ink                                                  | Done   |
 | `/qeydiyyat` side column, desktop only (>= 1024px) | `magnolia` with `glow-orb-light` (50%) centred behind it, never behind fields | Done   |
 | `/ustalar` page head                               | `peony` through the `PageHeading` `ornament` slot, 120 to 160px               | Done   |
 | `/xidmetler` page head                             | `hair-wave`, 180 to 240px, desktop only                                       | Done   |
-| `/islerimiz` page head                             | `hair-strand`, 120 to 150px, desktop only                                     | Done   |
+| `/islerimiz` page head                             | `hand-mirror`, 132 to 150px, desktop only, `reveal="draw-load"`               | Done   |
 | `/elaqe` page head                                 | `eucalyptus-line`, 150 to 190px, desktop only                                 | Done   |
 | Blog post end                                      | `blossom-spray`, 120 to 150px, centred after the article body                 | Done   |
 
 Never behind body text, prices or form fields, never in the admin, never
 repeated inside card grids, never more than one per section. `sparkle` and
-`asterisk` exist only as the brand mark echo.
+`asterisk` exist only as the brand mark echo; `hair-strand` is a spare.
 
 ## 6. Motion
 

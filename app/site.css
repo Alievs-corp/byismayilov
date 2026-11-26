@@ -654,7 +654,7 @@
 }
 
 .ornament path {
-  stroke-width: var(--o-sw);
+  stroke-width: calc(var(--o-sw) * var(--p-w, 1));
 }
 
 .ornament-mask {
@@ -667,7 +667,7 @@
     width: var(--o-w-md, var(--o-w));
   }
   .ornament path {
-    stroke-width: var(--o-sw-md, var(--o-sw));
+    stroke-width: calc(var(--o-sw-md, var(--o-sw)) * var(--p-w, 1));
   }
 }
 
@@ -676,7 +676,16 @@
     width: var(--o-w-lg, var(--o-w-md, var(--o-w)));
   }
   .ornament path {
-    stroke-width: var(--o-sw-lg, var(--o-sw-md, var(--o-sw)));
+    stroke-width: calc(var(--o-sw-lg, var(--o-sw-md, var(--o-sw))) * var(--p-w, 1));
+  }
+}
+
+@media (min-width: 1280px) {
+  .ornament {
+    width: var(--o-w-xl, var(--o-w-lg, var(--o-w-md, var(--o-w))));
+  }
+  .ornament path {
+    stroke-width: calc(var(--o-sw-xl, var(--o-sw-lg, var(--o-sw-md, var(--o-sw)))) * var(--p-w, 1));
   }
 }
 
