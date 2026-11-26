@@ -9,6 +9,7 @@ export function SectionHead({
   body,
   aside,
   ornament,
+  ornamentOnMobile = false,
   eyebrow,
   as: Heading = "h2",
   className,
@@ -18,6 +19,7 @@ export function SectionHead({
   body?: ReactNode;
   aside?: ReactNode;
   ornament?: ReactNode;
+  ornamentOnMobile?: boolean;
   eyebrow?: string;
   as?: "h1" | "h2";
   className?: string;
@@ -32,7 +34,14 @@ export function SectionHead({
           <LineReveal as={Heading} id={id} text={title} className="text-safe text-h2" />
         </div>
         {ornament ? (
-          <div className="mb-1 hidden shrink-0 sm:block xl:hidden">{ornament}</div>
+          <div
+            className={cx(
+              "mb-1 shrink-0 xl:hidden",
+              ornamentOnMobile ? "block" : "hidden sm:block",
+            )}
+          >
+            {ornament}
+          </div>
         ) : null}
       </div>
       {ornament ? (

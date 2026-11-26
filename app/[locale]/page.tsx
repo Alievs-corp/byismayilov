@@ -111,11 +111,13 @@ async function BuiltInSection({
           <SectionHead
             id={id}
             title={section.title ?? dict.home.servicesTitle}
+            ornamentOnMobile
             ornament={
               <Ornament
-                name="hair-strand"
-                width={{ base: 96, md: 120, lg: 140 }}
+                name="scissors-lock"
+                width={{ base: 84, md: 120, lg: 132, xl: 196 }}
                 ink={1.2}
+                duration={1500}
                 className="text-caramel-ink"
               />
             }

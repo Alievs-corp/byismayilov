@@ -70,7 +70,9 @@ const type = [
 ] as const;
 
 const ornaments: { name: OrnamentName; width: number; place: string }[] = [
-  { name: "hair-strand", width: 240, place: "Home services section head (done)" },
+  { name: "scissors-lock", width: 240, place: "Home services section head (done)" },
+  { name: "hand-mirror", width: 150, place: "/islerimiz page head ornament slot (done)" },
+  { name: "hair-strand", width: 240, place: "Spare" },
   { name: "hair-wave", width: 300, place: "Home booking band (done)" },
   { name: "blossom-spray", width: 150, place: "Empty states and 404 (done)" },
   { name: "magnolia", width: 150, place: "/qeydiyyat side column, desktop only (page agent)" },
@@ -267,9 +269,10 @@ export default async function KitPage() {
             title="Xidmətlər və qiymətlər"
             ornament={
               <Ornament
-                name="hair-strand"
-                width={{ base: 96, lg: 140 }}
+                name="scissors-lock"
+                width={{ base: 84, md: 120, lg: 132, xl: 196 }}
                 ink={1.2}
+                duration={1500}
                 className="text-caramel-ink"
               />
             }
